@@ -1,0 +1,19 @@
+{
+  "name": "get-merge-config",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "",
+    "test": "jest"
+  },
+  "author": "Tom Chen <tomchen.org@gmail.com>",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {},
+  "gmc": {
+    "option-1": { "fruit": "orange" },
+    "option-2": ["yellow"],
+    "option-3": 3,
+    "option-5": "hello"
+  }
+}
