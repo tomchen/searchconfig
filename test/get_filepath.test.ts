@@ -10,11 +10,10 @@ const expectedConfObj = {
   'option-5': 'hello',
 }
 
-test('get good.js (with "js" loader (i.e. dynamic require()))', async () => {
+test('get good.js (with auto detected loader)', async () => {
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'good.js'),
-      loader: 'js',
     },
   ]
 
@@ -23,7 +22,7 @@ test('get good.js (with "js" loader (i.e. dynamic require()))', async () => {
   expect(fileConfig).toEqual(expectedConfObj)
 })
 
-test('get good.ts (with "js" loader (i.e. dynamic require()))', async () => {
+test('get good.ts (with "js" loader)', async () => {
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'good.ts'),
@@ -49,6 +48,19 @@ test('get good.json', async () => {
   expect(fileConfig).toEqual(expectedConfObj)
 })
 
+test('get i_am_js_but_has_json_ext.json', async () => {
+  const configGetStrategy = [
+    {
+      filepath: path.join(fromDir, 'i_am_js_but_has_json_ext.json'),
+      loader: 'js',
+    },
+  ]
+
+  const fileConfig = await getConfig(configGetStrategy)
+
+  expect(fileConfig).toEqual(expectedConfObj)
+})
+
 test('get key "gmc" in good.package.json', async () => {
   const configGetStrategy = [
     {
@@ -63,11 +75,11 @@ test('get key "gmc" in good.package.json', async () => {
   expect(fileConfig).toEqual(expectedConfObj)
 })
 
-test('get key "gmc.option" in good2.package.json', async () => {
+test('get key "gmc.option" in good2.package.json with null loader', async () => {
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'good2.package.json'),
-      loader: 'json',
+      loader: null,
       key: 'gmc.option',
     },
   ]
@@ -77,11 +89,100 @@ test('get key "gmc.option" in good2.package.json', async () => {
   expect(fileConfig).toEqual(expectedConfObj)
 })
 
-test('get good.yaml with npm package "yaml"', async () => {
+import { registry } from '../src/registry'
+import { ConfigLoaderError, ConfigSyntaxError } from '../src/index'
+test('get good.yaml with npm package "yaml", unregistered & registered', async () => {
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'good.yaml'),
       loader: yaml.parse,
+    },
+  ]
+  expect(await getConfig(configGetStrategy)).toEqual(expectedConfObj)
+
+  const configGetStrategy2 = [
+    {
+      filepath: path.join(fromDir, 'good.yaml'),
+    },
+  ]
+  await getConfig(configGetStrategy2).catch((error) => {
+    expect(error).toBeInstanceOf(ConfigLoaderError)
+    expect(error).toEqual(new ConfigLoaderError('Unknown loader string'))
+  })
+
+  registry.addLoader('yaml', yaml.parse)
+  expect(await getConfig(configGetStrategy2)).toEqual(expectedConfObj)
+
+  registry.reset()
+  await getConfig(configGetStrategy2).catch((error) => {
+    expect(error).toBeInstanceOf(ConfigLoaderError)
+    expect(error).toEqual(new ConfigLoaderError('Unknown loader string'))
+  })
+})
+
+test('get good.yml2 with npm package "yaml", unregistered & registered', async () => {
+  const configGetStrategy = [
+    {
+      filepath: path.join(fromDir, 'good.yml2'),
+      loader: yaml.parse,
+    },
+  ]
+  expect(await getConfig(configGetStrategy)).toEqual(expectedConfObj)
+
+  const configGetStrategy2 = [
+    {
+      filepath: path.join(fromDir, 'good.yml2'),
+    },
+  ]
+  await getConfig(configGetStrategy2).catch((error) => {
+    expect(error).toBeInstanceOf(ConfigSyntaxError)
+  })
+
+  registry.addExt('.yml2', 'yaml2')
+  await getConfig(configGetStrategy2).catch((error) => {
+    expect(error).toBeInstanceOf(ConfigLoaderError)
+    expect(error).toEqual(new ConfigLoaderError('Unknown loader string'))
+  })
+
+  registry.addLoader('yaml2', yaml.parse)
+  expect(await getConfig(configGetStrategy2)).toEqual(expectedConfObj)
+
+  registry.reset()
+  await getConfig(configGetStrategy2).catch((error) => {
+    expect(error).toBeInstanceOf(ConfigSyntaxError)
+  })
+})
+
+test('loader not present', async () => {
+  const configGetStrategy = [
+    {
+      filepath: path.join(fromDir, 'good.json'),
+    },
+  ]
+
+  const fileConfig = await getConfig(configGetStrategy)
+
+  expect(fileConfig).toEqual(expectedConfObj)
+})
+
+test('undefined loader', async () => {
+  const configGetStrategy = [
+    {
+      filepath: path.join(fromDir, 'good.json'),
+      loader: undefined,
+    },
+  ]
+
+  const fileConfig = await getConfig(configGetStrategy)
+
+  expect(fileConfig).toEqual(expectedConfObj)
+})
+
+test('null loader', async () => {
+  const configGetStrategy = [
+    {
+      filepath: path.join(fromDir, 'good.json'),
+      loader: null,
     },
   ]
 

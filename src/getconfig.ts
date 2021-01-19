@@ -1,14 +1,14 @@
 import { findup, fileExists } from './findup'
 import {
   ConfigFileEmptyError,
-  ConfigSyntaxError,
   ConfigLoaderError,
   ConfigNotFoundError,
 } from './errors'
-import requireFromString from './requirefromstring'
 import { keyStr2Arr } from './keystr2arr'
 import * as path from 'path'
 import * as fs from 'fs'
+import { registry, LoaderFuncType } from './registry'
+import { autoDetectLoader } from './helpers'
 const readFile = fs.promises.readFile
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -16,18 +16,15 @@ type ConfValueType = any
 
 type ConfType = { [key: string]: ConfValueType }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type LoaderFuncType = (str: string) => { [key: string]: any }
-
 type ConfigGetStrategyFilepathType = {
   filepath: string
-  loader: string | LoaderFuncType
+  loader?: string | LoaderFuncType | null
   key?: string | null
 }
 
 type ConfigGetStrategyFilenameType = {
   filename: string | string[]
-  loader: string | LoaderFuncType | (string | LoaderFuncType)[]
+  loader?: string | LoaderFuncType | null | (string | LoaderFuncType | null)[]
   key?: string | (string | null)[] | null
   fromDir?: string
 }
@@ -37,29 +34,16 @@ type ConfigGetStrategyType = (
   | ConfigGetStrategyFilenameType
 )[]
 
-const loaderFuncMap: { [key: string]: LoaderFuncType } = {
-  js: requireFromString,
-  json: JSON.parse,
-}
-
-const loaderErrorMap: {
-  [key: string]: (error: Error, configPath: string) => Error
-} = {
-  js: (error, configPath) =>
-    new ConfigSyntaxError(`Cannot parse (require) the file ${configPath}`),
-  json: (error) => new ConfigSyntaxError(error.message),
-}
-
 const getConfigInfo = async (
   configGetStrategy: ConfigGetStrategyType
 ): Promise<{
-  configPath: string | undefined
-  loader: string | LoaderFuncType | undefined
+  configPath: string | null
+  loader: string | LoaderFuncType
   key: string[] | null
 }> => {
   try {
-    let configPath: string | undefined
-    let loader: string | LoaderFuncType | undefined
+    let configPath: string | null = null
+    let loader: string | LoaderFuncType | null = null
     let key: string[] | null = null
     for (const straItem of configGetStrategy) {
       if ('filepath' in straItem) {
@@ -67,7 +51,7 @@ const getConfigInfo = async (
         if (await fileExists(pathFull)) {
           // file found!
           configPath = pathFull
-          loader = straItem.loader
+          loader = straItem.loader || null
           if (straItem.key !== undefined && straItem.key !== null) {
             key = keyStr2Arr(straItem.key)
           }
@@ -97,9 +81,12 @@ const getConfigInfo = async (
             typeof straItem.loader === 'function'
           ) {
             loader = straItem.loader
-          } else {
+          } else if (
+            straItem.loader !== null &&
+            straItem.loader !== undefined
+          ) {
             // Array.isArray(straItem.loader) === true
-            loader = straItem.loader[i]
+            loader = straItem.loader[i] || null
           }
 
           if (straItem.key !== undefined && straItem.key !== null) {
@@ -122,26 +109,32 @@ const getConfigInfo = async (
       loader = loader.toLowerCase()
     }
 
+    if (loader === null && configPath !== null) {
+      const filename = path.basename(configPath)
+      loader = autoDetectLoader(filename)
+    }
+
+    if (loader === null) {
+      // configPath is actually always null here (ConfigNotFoundError)
+      loader = 'json'
+    }
+
     return { configPath, loader, key }
   } catch (error) {
     throw error
   }
 }
 
-const getLoaderFunc = (
-  loader: string | LoaderFuncType | undefined
-): LoaderFuncType => {
+const getLoaderFunc = (loader: string | LoaderFuncType): LoaderFuncType => {
   try {
     if (typeof loader === 'string') {
-      if (!(loader in loaderFuncMap)) {
+      if (!(loader in registry.loaders)) {
         throw new ConfigLoaderError('Unknown loader string')
       }
-      return loaderFuncMap[loader]
-    } else if (typeof loader === 'function') {
-      return loader
+      return registry.loaders[loader]
     } else {
-      // loader === undefined
-      throw new ConfigLoaderError('Unknown loader')
+      // typeof loader === 'function' (loader can't be null here)
+      return loader
     }
   } catch (error) {
     throw error
@@ -154,7 +147,7 @@ const getConfig = async (
   try {
     const { configPath, loader, key } = await getConfigInfo(configGetStrategy)
 
-    if (configPath !== undefined) {
+    if (configPath !== null) {
       let config
 
       const fileContent = await readFile(configPath, 'utf8')
@@ -167,8 +160,8 @@ const getConfig = async (
       try {
         config = loaderFunc(fileContent)
       } catch (error) {
-        if (typeof loader === 'string' && loader in loaderErrorMap) {
-          throw loaderErrorMap[loader](error, configPath)
+        if (typeof loader === 'string' && loader in registry.loaderErrors) {
+          throw registry.loaderErrors[loader](error, configPath)
         }
         throw error
       }
@@ -189,4 +182,9 @@ const getConfig = async (
   }
 }
 
-export { getConfig, ConfigGetStrategyType }
+export {
+  getConfig,
+  ConfigGetStrategyType,
+  ConfigGetStrategyFilepathType,
+  ConfigGetStrategyFilenameType,
+}

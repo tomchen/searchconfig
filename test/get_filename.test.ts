@@ -95,6 +95,61 @@ test('filename, mixed loader, mixed key array', async () => {
   expect(fileConfig).toEqual(expectedConfObj)
 })
 
+test('idem, no loader', async () => {
+  const configGetStrategy = [
+    {
+      filename: ['inexistent.js', 'good.json'],
+      fromDir,
+    },
+  ]
+
+  const fileConfig = await getConfig(configGetStrategy)
+
+  expect(fileConfig).toEqual(expectedConfObj)
+})
+
+test('idem, null loader', async () => {
+  const configGetStrategy = [
+    {
+      filename: ['inexistent.js', 'good.json'],
+      loader: null,
+      fromDir,
+    },
+  ]
+
+  const fileConfig = await getConfig(configGetStrategy)
+
+  expect(fileConfig).toEqual(expectedConfObj)
+})
+
+test('idem, null loader[1]', async () => {
+  const configGetStrategy = [
+    {
+      filename: ['inexistent.js', 'good.json'],
+      loader: ['inexistent', null],
+      fromDir,
+    },
+  ]
+
+  const fileConfig = await getConfig(configGetStrategy)
+
+  expect(fileConfig).toEqual(expectedConfObj)
+})
+
+test('idem, loader array length insufficient', async () => {
+  const configGetStrategy = [
+    {
+      filename: ['inexistent.js', 'good.json'],
+      loader: ['inexistent'],
+      fromDir,
+    },
+  ]
+
+  const fileConfig = await getConfig(configGetStrategy)
+
+  expect(fileConfig).toEqual(expectedConfObj)
+})
+
 test('idem, real config file in ../conf/, key[i] undefined', async () => {
   const configGetStrategy = [
     {
@@ -135,6 +190,20 @@ test('filepath and filename mix', async () => {
       filename: ['inexistent.js', 'good.json'],
       loader: ['inexistent', JSON.parse],
       key: ['inexistent', null],
+      fromDir,
+    },
+  ]
+
+  const fileConfig = await getConfig(configGetStrategy)
+
+  expect(fileConfig).toEqual(expectedConfObj)
+})
+
+test('get i_am_js_but_has_json_ext.json', async () => {
+  const configGetStrategy = [
+    {
+      filename: ['inexistent.js', 'i_am_js_but_has_json_ext.json'],
+      loader: ['inexistent', 'js'],
       fromDir,
     },
   ]

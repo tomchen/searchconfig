@@ -170,8 +170,8 @@ test('merge, some config has extra item', async () => {
 
   expect(config).toEqual(expectedConfig)
 
-  // if you want a simple merger, use Object.assign() instead:
-  // expect(Object.assign(defaultConfig, fileConfig, cliOptions)).toEqual({
+  // if you want a simple merger, use `{...obj, ...obj}` or `Object.assign()` instead:
+  // expect({...defaultConfig, ...fileConfig, ...cliOptions}).toEqual({
   //   opta: 'apple',
   //   optb: 'blue',
   //   optc: 'dog',

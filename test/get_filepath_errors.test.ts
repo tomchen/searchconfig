@@ -93,20 +93,6 @@ test('unknown loader string', async () => {
   })
 })
 
-test('unknown (undefined) loader (will fail type checks)', async () => {
-  const configGetStrategy = [
-    {
-      filepath: path.join(fromDir, 'good.json'),
-      loader: undefined,
-    },
-  ]
-
-  await getConfig(configGetStrategy).catch((error) => {
-    expect(error).toBeInstanceOf(ConfigLoaderError)
-    expect(error).toEqual(new ConfigLoaderError('Unknown loader'))
-  })
-})
-
 test('get inexistent file', async () => {
   const configGetStrategy = [
     {
