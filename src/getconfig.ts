@@ -1,6 +1,13 @@
 import { findup, fileExists } from './findup'
-import path from 'path'
-import fs from 'fs'
+import {
+  ConfigFileEmptyError,
+  ConfigSyntaxError,
+  ConfigLoaderError,
+  ConfigNotFoundError,
+} from './errors'
+import requireFromString from './requirefromstring'
+import * as path from 'path'
+import * as fs from 'fs'
 const readFile = fs.promises.readFile
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -29,12 +36,26 @@ type ConfigGetStrategyType = (
   | ConfigGetStrategyFilenameType
 )[]
 
+const loaderFuncMap: { [key: string]: LoaderFuncType } = {
+  js: requireFromString,
+  json: JSON.parse,
+}
+
+const loaderErrorMap: {
+  [key: string]: (error: Error, configPath: string) => Error
+} = {
+  js: (error, configPath) =>
+    new ConfigSyntaxError(`Cannot parse (require) the file ${configPath}`),
+  json: (error) => new ConfigSyntaxError(error.message),
+}
+
 const getConfig = async (
   configGetStrategy: ConfigGetStrategyType
 ): Promise<ConfType | undefined> => {
   try {
     let configPath: string | undefined
     let loader: string | LoaderFuncType | undefined
+    let loaderFunc: LoaderFuncType | undefined
     let key: string | undefined | null
     for (const straItem of configGetStrategy) {
       if ('filepath' in straItem) {
@@ -58,8 +79,6 @@ const getConfig = async (
           filenames = straItem.filename
         }
 
-        console.log(straItem.fromDir || process.cwd())
-
         const findupRes = await findup(
           filenames,
           straItem.fromDir || process.cwd()
@@ -69,9 +88,12 @@ const getConfig = async (
           configPath = findupRes[0]
           const i = filenames.indexOf(findupRes[1])
 
-          if (typeof straItem.loader === 'string') {
+          if (
+            typeof straItem.loader === 'string' ||
+            typeof straItem.loader === 'function'
+          ) {
             loader = straItem.loader
-          } else if (typeof straItem.loader !== 'function') {
+          } else {
             // Array.isArray(straItem.loader) === true
             loader = straItem.loader[i]
           }
@@ -89,39 +111,53 @@ const getConfig = async (
       }
     }
 
+    if (typeof loader === 'string') {
+      loader = loader.toLowerCase()
+    }
+
     if (configPath !== undefined) {
       let config
+
+      const fileContent = await readFile(configPath, 'utf8')
+
+      if (fileContent.trim() === '') {
+        throw new ConfigFileEmptyError('The config file is empty')
+      }
+
       if (typeof loader === 'string') {
-        switch (loader.toLowerCase()) {
-          case 'js':
-            try {
-              config = await require(configPath)
-            } catch (error) {
-              throw new SyntaxError(`Cannot parse ${configPath}`)
-            }
-            break
-          case 'json':
-            config = JSON.parse(await readFile(configPath, 'utf8'))
-            break
-          default:
-            throw new Error('Unknown loader string')
+        if (!(loader in loaderFuncMap)) {
+          throw new ConfigLoaderError('Unknown loader string')
         }
+        loaderFunc = loaderFuncMap[loader]
       } else if (typeof loader === 'function') {
-        config = loader(await readFile(configPath, 'utf8'))
+        loaderFunc = loader
       } else {
         // loader === undefined
-        throw new Error('Unknown loader')
+        throw new ConfigLoaderError('Unknown loader')
       }
+
+      try {
+        config = loaderFunc(fileContent)
+      } catch (error) {
+        loader
+        if (typeof loader === 'string' && loader in loaderErrorMap) {
+          throw loaderErrorMap[loader](error, configPath)
+        }
+        throw error
+      }
+
       if (key !== undefined && key !== null) {
         config = config[key]
       }
+
       return config
     } else {
-      throw new Error('Cannot find config file')
+      // configPath === undefined
+      throw new ConfigNotFoundError('Cannot find config file')
     }
   } catch (error) {
     throw error
   }
 }
 
-export { getConfig }
+export { getConfig, ConfigGetStrategyType }

@@ -1,7 +1,6 @@
 import { mergeConfig, ConfigMergeStrategyType } from '../src/index'
 
 test('merge, order', async () => {
-
   const configMergeStrategy: ConfigMergeStrategyType = {
     option_one: [
       ['cliopt', 'option1'],

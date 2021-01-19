@@ -1,8 +1,8 @@
 import { getConfig } from '../src/index'
-import path from 'path'
-import yaml from 'yaml'
+import * as path from 'path'
+import * as yaml from 'yaml'
 
-const fromDir = './test/get_test/filepath/'
+const fromDir = './test/file_to_test/filepath/'
 const expectedConfObj = {
   'option-1': { fruit: 'orange' },
   'option-2': ['yellow'],
@@ -74,98 +74,4 @@ test('get good.yaml with npm package "yaml"', async () => {
   const fileConfig = await getConfig(configGetStrategy)
 
   expect(fileConfig).toMatchObject(expectedConfObj)
-})
-
-test('get malformed.js (require())', () => {
-  const configGetStrategy = [
-    {
-      filepath: path.join(fromDir, 'malformed.js'),
-      loader: 'js',
-    },
-  ]
-
-  return getConfig(configGetStrategy).catch((error) => {
-    expect(error).toBeInstanceOf(SyntaxError)
-    expect(error.toString()).toMatch(/^SyntaxError: Cannot parse /)
-  })
-})
-
-test('get malformed.json', () => {
-  const configGetStrategy = [
-    {
-      filepath: path.join(fromDir, 'malformed.json'),
-      loader: 'json',
-    },
-  ]
-
-  return getConfig(configGetStrategy).catch((error) => {
-    expect(error).toBeInstanceOf(SyntaxError)
-  })
-})
-
-test('get malformed.yaml', () => {
-  const configGetStrategy = [
-    {
-      filepath: path.join(fromDir, 'malformed.yaml'),
-      loader: yaml.parse,
-    },
-  ]
-
-  return getConfig(configGetStrategy).catch((error) => {
-    expect(error).toBeInstanceOf(Error) // YAMLSemanticError
-  })
-})
-
-test('unknown loader string', () => {
-  const configGetStrategy = [
-    {
-      filepath: path.join(fromDir, 'good.json'),
-      loader: 'inexistentloader',
-    },
-  ]
-
-  return getConfig(configGetStrategy).catch((error) => {
-    expect(error).toBeInstanceOf(Error)
-    expect(error).toMatchObject(new Error('Unknown loader string'))
-  })
-})
-
-test('get inexistent file', () => {
-  const configGetStrategy = [
-    {
-      filepath: path.join(fromDir, 'inexistent.js'),
-      loader: 'js',
-    },
-  ]
-
-  return getConfig(configGetStrategy).catch((error) => {
-    expect(error).toBeInstanceOf(Error)
-    expect(error).toMatchObject(new Error('Cannot find config file'))
-  })
-})
-
-test('get empty.js (require())', async () => {
-  const configGetStrategy = [
-    {
-      filepath: path.join(fromDir, 'empty.js'),
-      loader: 'js',
-    },
-  ]
-
-  const fileConfig = await getConfig(configGetStrategy)
-
-  expect(fileConfig).toMatchObject({})
-})
-
-test('get empty.json', () => {
-  const configGetStrategy = [
-    {
-      filepath: path.join(fromDir, 'empty.json'),
-      loader: 'json',
-    },
-  ]
-
-  return getConfig(configGetStrategy).catch((error) => {
-    expect(error).toBeInstanceOf(SyntaxError)
-  })
 })
