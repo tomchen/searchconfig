@@ -1,9 +1,5 @@
 # Get & Merge Config
 
+TypeScript (JavaScript) node.js package to get and merge configuration.
 
-
-to do:
-key ['','']
-skip bad config
-readme
-test/filename/from
+A lightweight alternative to cosmiconfig, it is easy to use, fully customizable and predictable, and has clear error types that are simple to handle.

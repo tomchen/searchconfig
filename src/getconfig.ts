@@ -6,6 +6,7 @@ import {
   ConfigNotFoundError,
 } from './errors'
 import requireFromString from './requirefromstring'
+import { keyStr2Arr } from './keystr2arr'
 import * as path from 'path'
 import * as fs from 'fs'
 const readFile = fs.promises.readFile
@@ -49,14 +50,17 @@ const loaderErrorMap: {
   json: (error) => new ConfigSyntaxError(error.message),
 }
 
-const getConfig = async (
+const getConfigInfo = async (
   configGetStrategy: ConfigGetStrategyType
-): Promise<ConfType | undefined> => {
+): Promise<{
+  configPath: string | undefined
+  loader: string | LoaderFuncType | undefined
+  key: string[] | null
+}> => {
   try {
     let configPath: string | undefined
     let loader: string | LoaderFuncType | undefined
-    let loaderFunc: LoaderFuncType | undefined
-    let key: string | undefined | null
+    let key: string[] | null = null
     for (const straItem of configGetStrategy) {
       if ('filepath' in straItem) {
         const pathFull = path.resolve(straItem.filepath)
@@ -65,7 +69,7 @@ const getConfig = async (
           configPath = pathFull
           loader = straItem.loader
           if (straItem.key !== undefined && straItem.key !== null) {
-            key = straItem.key
+            key = keyStr2Arr(straItem.key)
           }
           break
         }
@@ -100,10 +104,13 @@ const getConfig = async (
 
           if (straItem.key !== undefined && straItem.key !== null) {
             if (typeof straItem.key === 'string') {
-              key = straItem.key
+              key = keyStr2Arr(straItem.key)
             } else {
               // Array.isArray(straItem.key) === true
-              key = straItem.key[i]
+              const keyTemp = straItem.key[i]
+              if (keyTemp !== undefined && keyTemp !== null) {
+                key = keyStr2Arr(keyTemp)
+              }
             }
           }
           break
@@ -115,6 +122,38 @@ const getConfig = async (
       loader = loader.toLowerCase()
     }
 
+    return { configPath, loader, key }
+  } catch (error) {
+    throw error
+  }
+}
+
+const getLoaderFunc = (
+  loader: string | LoaderFuncType | undefined
+): LoaderFuncType => {
+  try {
+    if (typeof loader === 'string') {
+      if (!(loader in loaderFuncMap)) {
+        throw new ConfigLoaderError('Unknown loader string')
+      }
+      return loaderFuncMap[loader]
+    } else if (typeof loader === 'function') {
+      return loader
+    } else {
+      // loader === undefined
+      throw new ConfigLoaderError('Unknown loader')
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
+const getConfig = async (
+  configGetStrategy: ConfigGetStrategyType
+): Promise<ConfType | undefined> => {
+  try {
+    const { configPath, loader, key } = await getConfigInfo(configGetStrategy)
+
     if (configPath !== undefined) {
       let config
 
@@ -124,22 +163,10 @@ const getConfig = async (
         throw new ConfigFileEmptyError('The config file is empty')
       }
 
-      if (typeof loader === 'string') {
-        if (!(loader in loaderFuncMap)) {
-          throw new ConfigLoaderError('Unknown loader string')
-        }
-        loaderFunc = loaderFuncMap[loader]
-      } else if (typeof loader === 'function') {
-        loaderFunc = loader
-      } else {
-        // loader === undefined
-        throw new ConfigLoaderError('Unknown loader')
-      }
-
+      const loaderFunc = getLoaderFunc(loader)
       try {
         config = loaderFunc(fileContent)
       } catch (error) {
-        loader
         if (typeof loader === 'string' && loader in loaderErrorMap) {
           throw loaderErrorMap[loader](error, configPath)
         }
@@ -147,7 +174,9 @@ const getConfig = async (
       }
 
       if (key !== undefined && key !== null) {
-        config = config[key]
+        for (const k of key) {
+          config = config[k]
+        }
       }
 
       return config

@@ -1,6 +1,4 @@
-dist/cjs
-dist/esm
-dist/types
+temp
 
 
 # Logs

@@ -20,7 +20,7 @@ test('simplest uppercased loader string', async () => {
 
   const fileConfig = await getConfig(configGetStrategy)
 
-  expect(fileConfig).toMatchObject(expectedConfObj)
+  expect(fileConfig).toEqual(expectedConfObj)
 })
 
 test('simplest no fromDir with key, loader is function', async () => {
@@ -34,7 +34,7 @@ test('simplest no fromDir with key, loader is function', async () => {
 
   const fileConfig = await getConfig(configGetStrategy)
 
-  expect(fileConfig).toMatchObject(expectedConfObj)
+  expect(fileConfig).toEqual(expectedConfObj)
 })
 
 test('filename array', async () => {
@@ -48,7 +48,7 @@ test('filename array', async () => {
 
   const fileConfig = await getConfig(configGetStrategy)
 
-  expect(fileConfig).toMatchObject(expectedConfObj)
+  expect(fileConfig).toEqual(expectedConfObj)
 })
 
 test('filename and loader array', async () => {
@@ -62,10 +62,10 @@ test('filename and loader array', async () => {
 
   const fileConfig = await getConfig(configGetStrategy)
 
-  expect(fileConfig).toMatchObject(expectedConfObj)
+  expect(fileConfig).toEqual(expectedConfObj)
 })
 
-test('filename loader and key array', async () => {
+test('filename, loader and key array, real config file in upper dir', async () => {
   const configGetStrategy = [
     {
       filename: ['inexistent.js', 'package.json'],
@@ -77,10 +77,10 @@ test('filename loader and key array', async () => {
 
   const fileConfig = await getConfig(configGetStrategy)
 
-  expect(fileConfig).toMatchObject(expectedConfObj)
+  expect(fileConfig).toEqual(expectedConfObj)
 })
 
-test('filename loader and key array', async () => {
+test('filename, mixed loader, mixed key array', async () => {
   const configGetStrategy = [
     {
       filename: ['inexistent.js', 'good.json'],
@@ -92,7 +92,37 @@ test('filename loader and key array', async () => {
 
   const fileConfig = await getConfig(configGetStrategy)
 
-  expect(fileConfig).toMatchObject(expectedConfObj)
+  expect(fileConfig).toEqual(expectedConfObj)
+})
+
+test('idem, real config file in ../conf/, key[i] undefined', async () => {
+  const configGetStrategy = [
+    {
+      filename: ['inexistent.js', 'conf/inupperconf.json'],
+      loader: [(str: string) => ({}), 'JSON'],
+      key: ['inexistent'],
+      fromDir,
+    },
+  ]
+
+  const fileConfig = await getConfig(configGetStrategy)
+
+  expect(fileConfig).toEqual(expectedConfObj)
+})
+
+test('idem, key has dot', async () => {
+  const configGetStrategy = [
+    {
+      filename: ['inexistent.js', 'good2.package.json'],
+      loader: [(str: string) => ({}), 'JSON'],
+      key: ['inexistent', 'gmc.option'],
+      fromDir,
+    },
+  ]
+
+  const fileConfig = await getConfig(configGetStrategy)
+
+  expect(fileConfig).toEqual(expectedConfObj)
 })
 
 test('filepath and filename mix', async () => {
@@ -111,7 +141,7 @@ test('filepath and filename mix', async () => {
 
   const fileConfig = await getConfig(configGetStrategy)
 
-  expect(fileConfig).toMatchObject(expectedConfObj)
+  expect(fileConfig).toEqual(expectedConfObj)
 })
 
 test('cannot find config file', async () => {
@@ -130,6 +160,6 @@ test('cannot find config file', async () => {
 
   await getConfig(configGetStrategy).catch((error) => {
     expect(error).toBeInstanceOf(ConfigNotFoundError)
-    expect(error).toMatchObject(new ConfigNotFoundError('Cannot find config file'))
+    expect(error).toEqual(new ConfigNotFoundError('Cannot find config file'))
   })
 })

@@ -48,7 +48,7 @@ test('findup no fromDir true', async () => {
   if (res !== false) {
     res[0] = firstUpper(res[0])
 
-    expect(res).toMatchObject([
+    expect(res).toEqual([
       firstUpper(path.join(__dirname, '../package.json')),
       'package.json',
     ])
@@ -60,7 +60,7 @@ test('findup no fromDir false', async () => {
 })
 
 test('findup fromDir true', async () => {
-  expect(await findup('good.js', fromDir)).toMatchObject([
+  expect(await findup('good.js', fromDir)).toEqual([
     path.resolve(fromDir, 'good.js'),
     'good.js',
   ])
@@ -71,14 +71,14 @@ test('findup fromDir false', async () => {
 })
 
 test('findup fromDir in upper folder', async () => {
-  expect(await findup('empty.js', fromDir)).toMatchObject([
+  expect(await findup('empty.js', fromDir)).toEqual([
     path.resolve(fromDir, '../empty.js'),
     'empty.js',
   ])
 })
 
 test('findup multiple files fromDir true in upper folder', async () => {
-  expect(await findup(['inexistent.js', 'empty.js'], fromDir)).toMatchObject([
+  expect(await findup(['inexistent.js', 'empty.js'], fromDir)).toEqual([
     path.resolve(fromDir, '../empty.js'),
     'empty.js',
   ])

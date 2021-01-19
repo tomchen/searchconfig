@@ -51,7 +51,7 @@ test('merge, order', async () => {
     option_three: 'bird',
   }
 
-  expect(config).toMatchObject(expectedConfig)
+  expect(config).toEqual(expectedConfig)
 })
 
 const configMergeStrategy: ConfigMergeStrategyType = {
@@ -99,7 +99,7 @@ test('merge, some options inexistent', async () => {
     option_three: undefined,
   }
 
-  expect(config).toMatchObject(expectedConfig)
+  expect(config).toEqual(expectedConfig)
 })
 
 test('merge, some config inexistent', async () => {
@@ -116,7 +116,7 @@ test('merge, some config inexistent', async () => {
     option_three: undefined,
   }
 
-  expect(config2).toMatchObject(expectedConfig2)
+  expect(config2).toEqual(expectedConfig2)
 })
 
 test('merge, all configs inexistent', async () => {
@@ -130,7 +130,7 @@ test('merge, all configs inexistent', async () => {
     option_three: undefined,
   }
 
-  expect(config3).toMatchObject(expectedConfig3)
+  expect(config3).toEqual(expectedConfig3)
 })
 
 test('merge, some config has extra item', async () => {
@@ -168,10 +168,10 @@ test('merge, some config has extra item', async () => {
     option_three: 'cat',
   }
 
-  expect(config).toMatchObject(expectedConfig)
+  expect(config).toEqual(expectedConfig)
 
   // if you want a simple merger, use Object.assign() instead:
-  // expect(Object.assign(defaultConfig, fileConfig, cliOptions)).toMatchObject({
+  // expect(Object.assign(defaultConfig, fileConfig, cliOptions)).toEqual({
   //   opta: 'apple',
   //   optb: 'blue',
   //   optc: 'dog',

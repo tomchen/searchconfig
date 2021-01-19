@@ -9,7 +9,7 @@ test('Number required from string', () => {
 })
 
 test('Object required from string', () => {
-  expect(requireFromString('module.exports = { test: 132 }')).toMatchObject({
+  expect(requireFromString('module.exports = { test: 132 }')).toEqual({
     test: 132,
   })
 })

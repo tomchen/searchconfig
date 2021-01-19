@@ -20,7 +20,7 @@ test('get good.js (with "js" loader (i.e. dynamic require()))', async () => {
 
   const fileConfig = await getConfig(configGetStrategy)
 
-  expect(fileConfig).toMatchObject(expectedConfObj)
+  expect(fileConfig).toEqual(expectedConfObj)
 })
 
 test('get good.ts (with "js" loader (i.e. dynamic require()))', async () => {
@@ -33,7 +33,7 @@ test('get good.ts (with "js" loader (i.e. dynamic require()))', async () => {
 
   const fileConfig = await getConfig(configGetStrategy)
 
-  expect(fileConfig).toMatchObject(expectedConfObj)
+  expect(fileConfig).toEqual(expectedConfObj)
 })
 
 test('get good.json', async () => {
@@ -46,7 +46,7 @@ test('get good.json', async () => {
 
   const fileConfig = await getConfig(configGetStrategy)
 
-  expect(fileConfig).toMatchObject(expectedConfObj)
+  expect(fileConfig).toEqual(expectedConfObj)
 })
 
 test('get key "gmc" in good.package.json', async () => {
@@ -60,7 +60,21 @@ test('get key "gmc" in good.package.json', async () => {
 
   const fileConfig = await getConfig(configGetStrategy)
 
-  expect(fileConfig).toMatchObject(expectedConfObj)
+  expect(fileConfig).toEqual(expectedConfObj)
+})
+
+test('get key "gmc.option" in good2.package.json', async () => {
+  const configGetStrategy = [
+    {
+      filepath: path.join(fromDir, 'good2.package.json'),
+      loader: 'json',
+      key: 'gmc.option',
+    },
+  ]
+
+  const fileConfig = await getConfig(configGetStrategy)
+
+  expect(fileConfig).toEqual(expectedConfObj)
 })
 
 test('get good.yaml with npm package "yaml"', async () => {
@@ -73,5 +87,5 @@ test('get good.yaml with npm package "yaml"', async () => {
 
   const fileConfig = await getConfig(configGetStrategy)
 
-  expect(fileConfig).toMatchObject(expectedConfObj)
+  expect(fileConfig).toEqual(expectedConfObj)
 })

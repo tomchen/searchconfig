@@ -31,8 +31,7 @@
     "rc",
     "settings",
     "cli",
-    "typescript",
-    "deno"
+    "typescript"
   ],
   "author": "Tom Chen <tomchen.org@gmail.com>",
   "license": "MIT",

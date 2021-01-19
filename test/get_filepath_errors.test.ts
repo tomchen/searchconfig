@@ -89,11 +89,11 @@ test('unknown loader string', async () => {
 
   await getConfig(configGetStrategy).catch((error) => {
     expect(error).toBeInstanceOf(ConfigLoaderError)
-    expect(error).toMatchObject(new ConfigLoaderError('Unknown loader string'))
+    expect(error).toEqual(new ConfigLoaderError('Unknown loader string'))
   })
 })
 
-test('unknown (undefined) loader', async () => {
+test('unknown (undefined) loader (will fail type checks)', async () => {
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'good.json'),
@@ -103,7 +103,7 @@ test('unknown (undefined) loader', async () => {
 
   await getConfig(configGetStrategy).catch((error) => {
     expect(error).toBeInstanceOf(ConfigLoaderError)
-    expect(error).toMatchObject(new ConfigLoaderError('Unknown loader'))
+    expect(error).toEqual(new ConfigLoaderError('Unknown loader'))
   })
 })
 
@@ -117,9 +117,7 @@ test('get inexistent file', async () => {
 
   await getConfig(configGetStrategy).catch((error) => {
     expect(error).toBeInstanceOf(ConfigNotFoundError)
-    expect(error).toMatchObject(
-      new ConfigNotFoundError('Cannot find config file')
-    )
+    expect(error).toEqual(new ConfigNotFoundError('Cannot find config file'))
   })
 })
 
@@ -132,9 +130,7 @@ test('get empty.js (require)', async () => {
   ]
 
   await getConfig(configGetStrategy).catch((error) => {
-    expect(error).toMatchObject(
-      new ConfigFileEmptyError('The config file is empty')
-    )
+    expect(error).toEqual(new ConfigFileEmptyError('The config file is empty'))
   })
 })
 
@@ -147,9 +143,7 @@ test('get empty.json', async () => {
   ]
 
   await getConfig(configGetStrategy).catch((error) => {
-    expect(error).toMatchObject(
-      new ConfigFileEmptyError('The config file is empty')
-    )
+    expect(error).toEqual(new ConfigFileEmptyError('The config file is empty'))
   })
 })
 
@@ -163,9 +157,7 @@ test('get empty.package.json', async () => {
   ]
 
   await getConfig(configGetStrategy).catch((error) => {
-    expect(error).toMatchObject(
-      new ConfigFileEmptyError('The config file is empty')
-    )
+    expect(error).toEqual(new ConfigFileEmptyError('The config file is empty'))
   })
 })
 
@@ -178,8 +170,26 @@ test('get empty.yaml', async () => {
   ]
 
   await getConfig(configGetStrategy).catch((error) => {
-    expect(error).toMatchObject(
-      new ConfigFileEmptyError('The config file is empty')
-    )
+    expect(error).toEqual(new ConfigFileEmptyError('The config file is empty'))
+  })
+})
+
+import * as keyStr2Arr from '../src/keystr2arr'
+test('mock keyStr2Arr to simulate error', async () => {
+  const spy = jest.spyOn(keyStr2Arr, 'keyStr2Arr').mockImplementation((_) => {
+    throw 'my err'
+  })
+  const configGetStrategy = [
+    {
+      filepath: path.join(fromDir, 'good2.package.json'),
+      loader: 'json',
+      key: 'gmc.option',
+    },
+  ]
+
+  await getConfig(configGetStrategy).catch((error) => {
+    expect(error).toEqual('my err')
+    expect(spy).toHaveBeenCalled()
+    spy.mockRestore()
   })
 })
