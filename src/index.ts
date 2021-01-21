@@ -1,24 +1,28 @@
 import { getConfig, ConfigGetStrategyType } from './getconfig'
 import { mergeConfig, ConfigMergeStrategyType } from './mergeconfig'
-import { autoDetectLoader, defaultConfigGetStrategy } from './helpers'
+import { defaultConfigGetStrategy } from './util'
+import { registry, LoaderFuncType, LoaderErrorFuncType } from './registry'
+
 import {
   ConfigError,
   ConfigFileEmptyError,
   ConfigSyntaxError,
-  ConfigLoaderError,
+  ConfigUnknownLoaderError,
   ConfigNotFoundError,
 } from './errors'
 
 export {
   getConfig,
   mergeConfig,
-  autoDetectLoader,
   defaultConfigGetStrategy,
+  registry,
+  LoaderFuncType,
+  LoaderErrorFuncType,
   ConfigGetStrategyType,
   ConfigMergeStrategyType,
   ConfigError,
   ConfigFileEmptyError,
   ConfigSyntaxError,
-  ConfigLoaderError,
+  ConfigUnknownLoaderError,
   ConfigNotFoundError,
 }

@@ -3,7 +3,7 @@ import {
   ConfigError,
   ConfigFileEmptyError,
   ConfigSyntaxError,
-  ConfigLoaderError,
+  ConfigUnknownLoaderError,
   ConfigNotFoundError,
 } from '../src/index'
 import * as path from 'path'
@@ -16,7 +16,7 @@ test('error classes', () => {
     ConfigError,
     ConfigFileEmptyError,
     ConfigSyntaxError,
-    ConfigLoaderError,
+    ConfigUnknownLoaderError,
     ConfigNotFoundError,
   }
 
@@ -88,8 +88,8 @@ test('unknown loader string', async () => {
   ]
 
   await getConfig(configGetStrategy).catch((error) => {
-    expect(error).toBeInstanceOf(ConfigLoaderError)
-    expect(error).toEqual(new ConfigLoaderError('Unknown loader string'))
+    expect(error).toBeInstanceOf(ConfigUnknownLoaderError)
+    expect(error).toEqual(new ConfigUnknownLoaderError('Unknown loader string'))
   })
 })
 

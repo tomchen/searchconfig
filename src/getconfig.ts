@@ -1,14 +1,14 @@
 import { findup, fileExists } from './findup'
 import {
   ConfigFileEmptyError,
-  ConfigLoaderError,
+  ConfigUnknownLoaderError,
   ConfigNotFoundError,
 } from './errors'
 import { keyStr2Arr } from './keystr2arr'
 import * as path from 'path'
 import * as fs from 'fs'
 import { registry, LoaderFuncType } from './registry'
-import { autoDetectLoader } from './helpers'
+import { autoDetectLoader } from './util'
 const readFile = fs.promises.readFile
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -29,6 +29,12 @@ type ConfigGetStrategyFilenameType = {
   fromDir?: string
 }
 
+/**
+ * Type of `configGetStrategy` parameter in functions
+ * {@link defaultConfigGetStrategy} and {@link getConfig}
+ *
+ * @example
+ */
 type ConfigGetStrategyType = (
   | ConfigGetStrategyFilepathType
   | ConfigGetStrategyFilenameType
@@ -129,7 +135,7 @@ const getLoaderFunc = (loader: string | LoaderFuncType): LoaderFuncType => {
   try {
     if (typeof loader === 'string') {
       if (!(loader in registry.loaders)) {
-        throw new ConfigLoaderError('Unknown loader string')
+        throw new ConfigUnknownLoaderError('Unknown loader string')
       }
       return registry.loaders[loader]
     } else {
@@ -141,6 +147,14 @@ const getLoaderFunc = (loader: string | LoaderFuncType): LoaderFuncType => {
   }
 }
 
+/**
+ * Get the configuration file
+ * @param configGetStrategy - Strategy as to how to get the config file
+ * (the order of search method and file name / path)
+ * @returns Configuration object
+ *
+ * @example
+ */
 const getConfig = async (
   configGetStrategy: ConfigGetStrategyType
 ): Promise<ConfType | undefined> => {

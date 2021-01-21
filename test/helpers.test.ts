@@ -1,4 +1,4 @@
-import { autoDetectLoader, defaultConfigGetStrategy } from '../src/helpers'
+import { autoDetectLoader, defaultConfigGetStrategy } from '../src/util'
 import { registry } from '../src/registry'
 
 test('autoDetectLoader defaultExtRegistry', () => {

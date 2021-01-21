@@ -6,6 +6,7 @@ module.exports = {
   },
   rules: {
     'prettier/prettier': 'error',
+    'tsdoc/syntax': 'warn',
   },
-  plugins: ['@typescript-eslint', 'prettier'],
+  plugins: ['@typescript-eslint', 'prettier', 'eslint-plugin-tsdoc'],
 }

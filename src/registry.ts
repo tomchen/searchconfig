@@ -1,8 +1,19 @@
 import requireFromString from './requirefromstring'
 import { ConfigSyntaxError } from './errors'
 
+/**
+ * Type of `loaderFunc` parameter in function `registry.addLoader()`
+ *
+ * @example
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type LoaderFuncType = (str: string) => { [key: string]: any }
+
+/**
+ * Type of `loaderErrorFunc` parameter in function `registry.addLoaderError()`
+ *
+ * @example
+ */
 type LoaderErrorFuncType = (error: Error, configPath: string) => Error
 
 type LoaderRegistryType = { [loaderName: string]: LoaderFuncType }
@@ -40,56 +51,69 @@ const defaultExtRegistry = {
   '.yml': 'yaml',
 }
 
-class Registry {
-  private loaderRegistry: LoaderRegistryType
-  private loaderErrorRegistry: LoaderErrorRegistryType
-  private extRegistry: ExtRegistryType
+let loaderRegistry: LoaderRegistryType = { ...defaultLoaderRegistry }
+let loaderErrorRegistry: LoaderErrorRegistryType = {
+  ...defaultLoaderErrorRegistry,
+}
+let extRegistry: ExtRegistryType = { ...defaultExtRegistry }
 
-  constructor() {
-    this.loaderRegistry = { ...defaultLoaderRegistry }
-    this.loaderErrorRegistry = { ...defaultLoaderErrorRegistry }
-    this.extRegistry = { ...defaultExtRegistry }
-  }
-
-  reset() {
-    this.loaderRegistry = { ...defaultLoaderRegistry }
-    this.loaderErrorRegistry = { ...defaultLoaderErrorRegistry }
-    this.extRegistry = { ...defaultExtRegistry }
-  }
-
-  addLoader(loaderName: string, loaderFunc: LoaderFuncType): void {
-    this.loaderRegistry[loaderName.toLowerCase()] = loaderFunc
-  }
-
-  addLoaderError(
+/**
+ * registry
+ */
+const registry = {
+  reset: (): void => {
+    loaderRegistry = { ...defaultLoaderRegistry }
+    loaderErrorRegistry = { ...defaultLoaderErrorRegistry }
+    extRegistry = { ...defaultExtRegistry }
+  },
+  addLoader: (loaderName: string, loaderFunc: LoaderFuncType): void => {
+    loaderRegistry[loaderName.toLowerCase()] = loaderFunc
+  },
+  addLoaderError: (
     loaderName: string,
     loaderErrorFunc: LoaderErrorFuncType
-  ): void {
-    this.loaderErrorRegistry[loaderName.toLowerCase()] = loaderErrorFunc
-  }
-
-  addExt(ext: string, loaderName: string): void {
-    this.extRegistry[ext.toLowerCase()] = loaderName
-  }
-
+  ): void => {
+    loaderErrorRegistry[loaderName.toLowerCase()] = loaderErrorFunc
+  },
+  addExt: (ext: string, loaderName: string): void => {
+    extRegistry[ext.toLowerCase()] = loaderName
+  },
+  /**
+   * ss
+   */
   get loaders(): LoaderRegistryType {
-    return this.loaderRegistry
-  }
-
+    return loaderRegistry
+  },
   get loaderErrors(): LoaderErrorRegistryType {
-    return this.loaderErrorRegistry
-  }
-
+    return loaderErrorRegistry
+  },
   get exts(): ExtRegistryType {
-    return this.extRegistry
-  }
+    return extRegistry
+  },
 }
-
-const registry = new Registry()
+const descriptor = {
+  configurable: false,
+  enumerable: false,
+  writable: false,
+}
+const descriptor2 = {
+  configurable: false,
+  enumerable: false,
+}
+Object.defineProperties(registry, {
+  reset: descriptor,
+  addLoader: descriptor,
+  addLoaderError: descriptor,
+  addExt: descriptor,
+  loaders: descriptor2,
+  loaderErrors: descriptor2,
+  exts: descriptor2,
+})
 
 export {
   registry,
   LoaderFuncType,
+  LoaderErrorFuncType,
   defaultLoaderRegistry,
   defaultLoaderErrorRegistry,
   defaultExtRegistry,

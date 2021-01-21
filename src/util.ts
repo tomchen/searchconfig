@@ -14,6 +14,19 @@ const autoDetectLoader = (fileName: string): string => {
   return 'json'
 }
 
+/**
+ * Construct a default configGetStrategy (to be used in {@link mergeConfig})
+ * @param packageName - The name of the package
+ * @param options - options. \{
+ *
+ * `before`: your configGetStrategy (which takes precedence) to be inserted before the generated configGetStrategy, it can be configGetStrategy object or array of configGetStrategy object
+ *
+ * `hasYaml`: whether to use YAML
+ *
+ * \}
+ *
+ * @example
+ */
 const defaultConfigGetStrategy = (
   packageName: string,
   options?: {

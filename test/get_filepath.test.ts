@@ -90,7 +90,7 @@ test('get key "gmc.option" in good2.package.json with null loader', async () => 
 })
 
 import { registry } from '../src/registry'
-import { ConfigLoaderError, ConfigSyntaxError } from '../src/index'
+import { ConfigUnknownLoaderError, ConfigSyntaxError } from '../src/index'
 test('get good.yaml with npm package "yaml", unregistered & registered', async () => {
   const configGetStrategy = [
     {
@@ -106,8 +106,8 @@ test('get good.yaml with npm package "yaml", unregistered & registered', async (
     },
   ]
   await getConfig(configGetStrategy2).catch((error) => {
-    expect(error).toBeInstanceOf(ConfigLoaderError)
-    expect(error).toEqual(new ConfigLoaderError('Unknown loader string'))
+    expect(error).toBeInstanceOf(ConfigUnknownLoaderError)
+    expect(error).toEqual(new ConfigUnknownLoaderError('Unknown loader string'))
   })
 
   registry.addLoader('yaml', yaml.parse)
@@ -115,8 +115,8 @@ test('get good.yaml with npm package "yaml", unregistered & registered', async (
 
   registry.reset()
   await getConfig(configGetStrategy2).catch((error) => {
-    expect(error).toBeInstanceOf(ConfigLoaderError)
-    expect(error).toEqual(new ConfigLoaderError('Unknown loader string'))
+    expect(error).toBeInstanceOf(ConfigUnknownLoaderError)
+    expect(error).toEqual(new ConfigUnknownLoaderError('Unknown loader string'))
   })
 })
 
@@ -140,8 +140,8 @@ test('get good.yml2 with npm package "yaml", unregistered & registered', async (
 
   registry.addExt('.yml2', 'yaml2')
   await getConfig(configGetStrategy2).catch((error) => {
-    expect(error).toBeInstanceOf(ConfigLoaderError)
-    expect(error).toEqual(new ConfigLoaderError('Unknown loader string'))
+    expect(error).toBeInstanceOf(ConfigUnknownLoaderError)
+    expect(error).toEqual(new ConfigUnknownLoaderError('Unknown loader string'))
   })
 
   registry.addLoader('yaml2', yaml.parse)

@@ -1,3 +1,8 @@
+/**
+ * Error thrown by searchconfig package.
+ * Parent Error for {@link ConfigFileEmptyError}, {@link ConfigSyntaxError},
+ * {@link ConfigUnknownLoaderError} and {@link ConfigNotFoundError}
+ */
 class ConfigError extends Error {
   public readonly name: string = 'ConfigError'
   public message: string
@@ -9,6 +14,9 @@ class ConfigError extends Error {
   }
 }
 
+/**
+ * Error specifying that the config file found is empty
+ */
 class ConfigFileEmptyError extends ConfigError {
   name = 'ConfigFileEmptyError'
   constructor(message?: string) {
@@ -19,6 +27,10 @@ class ConfigFileEmptyError extends ConfigError {
   }
 }
 
+/**
+ * Error specifying that there is syntax error in the config file
+ * found therefore it cannot be parsed
+ */
 class ConfigSyntaxError extends ConfigError {
   name = 'ConfigSyntaxError'
   constructor(message?: string) {
@@ -29,16 +41,22 @@ class ConfigSyntaxError extends ConfigError {
   }
 }
 
-class ConfigLoaderError extends ConfigError {
-  name = 'ConfigLoaderError'
+/**
+ * Error specifying that the loader is unknown
+ */
+class ConfigUnknownLoaderError extends ConfigError {
+  name = 'ConfigUnknownLoaderError'
   constructor(message?: string) {
     super(message)
-    Object.setPrototypeOf(this, ConfigLoaderError.prototype)
-    Error.captureStackTrace(this, ConfigLoaderError)
+    Object.setPrototypeOf(this, ConfigUnknownLoaderError.prototype)
+    Error.captureStackTrace(this, ConfigUnknownLoaderError)
     this.message = message || ''
   }
 }
 
+/**
+ * Error specifying that the config file is not found at all places
+ */
 class ConfigNotFoundError extends ConfigError {
   name = 'ConfigNotFoundError'
   constructor(message?: string) {
@@ -53,6 +71,6 @@ export {
   ConfigError,
   ConfigFileEmptyError,
   ConfigSyntaxError,
-  ConfigLoaderError,
+  ConfigUnknownLoaderError,
   ConfigNotFoundError,
 }
