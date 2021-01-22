@@ -2,6 +2,7 @@
  * Error thrown by searchconfig package.
  * Parent Error for {@link ConfigFileEmptyError}, {@link ConfigSyntaxError},
  * {@link ConfigUnknownLoaderError} and {@link ConfigNotFoundError}
+ * @public
  */
 class ConfigError extends Error {
   public readonly name: string = 'ConfigError'
@@ -16,6 +17,7 @@ class ConfigError extends Error {
 
 /**
  * Error specifying that the config file found is empty
+ * @public
  */
 class ConfigFileEmptyError extends ConfigError {
   name = 'ConfigFileEmptyError'
@@ -30,6 +32,7 @@ class ConfigFileEmptyError extends ConfigError {
 /**
  * Error specifying that there is syntax error in the config file
  * found therefore it cannot be parsed
+ * @public
  */
 class ConfigSyntaxError extends ConfigError {
   name = 'ConfigSyntaxError'
@@ -43,6 +46,7 @@ class ConfigSyntaxError extends ConfigError {
 
 /**
  * Error specifying that the loader is unknown
+ * @public
  */
 class ConfigUnknownLoaderError extends ConfigError {
   name = 'ConfigUnknownLoaderError'
@@ -56,6 +60,7 @@ class ConfigUnknownLoaderError extends ConfigError {
 
 /**
  * Error specifying that the config file is not found at all places
+ * @public
  */
 class ConfigNotFoundError extends ConfigError {
   name = 'ConfigNotFoundError'

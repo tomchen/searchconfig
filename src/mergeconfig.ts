@@ -8,6 +8,8 @@ type ConfsType = { [key: string]: ConfType }
  * Type of `configMergeStrategy` parameter in function {@link mergeConfig}
  *
  * @example
+ *
+ * @public
  */
 type ConfigMergeStrategyType = {
   [key: string]: [string, string][]
@@ -20,6 +22,8 @@ type ConfigMergeStrategyType = {
  * @returns Merged configuration object
  *
  * @example
+ *
+ * @public
  */
 const mergeConfig = (
   configs: ConfsType,

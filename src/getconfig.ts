@@ -1,10 +1,9 @@
-import { findup, fileExists } from './findup'
+import { findup, fileExists, keyStr2Arr } from './_util'
 import {
   ConfigFileEmptyError,
   ConfigUnknownLoaderError,
   ConfigNotFoundError,
 } from './errors'
-import { keyStr2Arr } from './keystr2arr'
 import * as path from 'path'
 import * as fs from 'fs'
 import { registry, LoaderFuncType } from './registry'
@@ -34,6 +33,8 @@ type ConfigGetStrategyFilenameType = {
  * {@link defaultConfigGetStrategy} and {@link getConfig}
  *
  * @example
+ *
+ * @public
  */
 type ConfigGetStrategyType = (
   | ConfigGetStrategyFilepathType
@@ -122,7 +123,7 @@ const getConfigInfo = async (
 
     if (loader === null) {
       // configPath is actually always null here (ConfigNotFoundError)
-      loader = 'json'
+      loader = 'jsonoryaml'
     }
 
     return { configPath, loader, key }
@@ -154,6 +155,8 @@ const getLoaderFunc = (loader: string | LoaderFuncType): LoaderFuncType => {
  * @returns Configuration object
  *
  * @example
+ *
+ * @public
  */
 const getConfig = async (
   configGetStrategy: ConfigGetStrategyType

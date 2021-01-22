@@ -1,0 +1,19 @@
+{
+  "name": "searchconfig",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "",
+    "test": "jest"
+  },
+  "author": "Tom Chen <tomchen.org@gmail.com>",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {},
+  "johndoe": {
+    "option-1": { "fruit": "orange" },
+    "option-2": ["yellow"],
+    "option-3": 3,
+    "option-5": "hello"
+  }
+}

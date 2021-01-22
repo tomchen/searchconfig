@@ -160,9 +160,9 @@ test('get empty.yaml', async () => {
   })
 })
 
-import * as keyStr2Arr from '../src/keystr2arr'
+import * as _util from '../src/_util'
 test('mock keyStr2Arr to simulate error', async () => {
-  const spy = jest.spyOn(keyStr2Arr, 'keyStr2Arr').mockImplementation((_) => {
+  const spy = jest.spyOn(_util, 'keyStr2Arr').mockImplementation((_) => {
     throw 'my err'
   })
   const configGetStrategy = [

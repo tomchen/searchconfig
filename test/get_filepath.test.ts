@@ -22,7 +22,7 @@ test('get good.js (with auto detected loader)', async () => {
   expect(fileConfig).toEqual(expectedConfObj)
 })
 
-test('get good.ts (with "js" loader)', async () => {
+test('get good.ts (with js loader)', async () => {
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'good.ts'),
@@ -61,7 +61,7 @@ test('get i_am_js_but_has_json_ext.json', async () => {
   expect(fileConfig).toEqual(expectedConfObj)
 })
 
-test('get key "gmc" in good.package.json', async () => {
+test('get key gmc in good.package.json', async () => {
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'good.package.json'),
@@ -75,7 +75,7 @@ test('get key "gmc" in good.package.json', async () => {
   expect(fileConfig).toEqual(expectedConfObj)
 })
 
-test('get key "gmc.option" in good2.package.json with null loader', async () => {
+test('get key gmc.option in good2.package.json with null loader', async () => {
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'good2.package.json'),
@@ -91,7 +91,7 @@ test('get key "gmc.option" in good2.package.json with null loader', async () => 
 
 import { registry } from '../src/registry'
 import { ConfigUnknownLoaderError, ConfigSyntaxError } from '../src/index'
-test('get good.yaml with npm package "yaml", unregistered & registered', async () => {
+test('get good.yaml with npm package yaml, unregistered & registered', async () => {
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'good.yaml'),
@@ -120,7 +120,7 @@ test('get good.yaml with npm package "yaml", unregistered & registered', async (
   })
 })
 
-test('get good.yml2 with npm package "yaml", unregistered & registered', async () => {
+test('get good.yml2 with npm package yaml, unregistered & registered', async () => {
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'good.yml2'),

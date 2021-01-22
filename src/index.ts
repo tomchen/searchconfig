@@ -1,7 +1,12 @@
 import { getConfig, ConfigGetStrategyType } from './getconfig'
 import { mergeConfig, ConfigMergeStrategyType } from './mergeconfig'
 import { defaultConfigGetStrategy } from './util'
-import { registry, LoaderFuncType, LoaderErrorFuncType } from './registry'
+import {
+  registry,
+  LoaderFuncType,
+  LoaderErrorFuncType,
+  Registry,
+} from './registry'
 
 import {
   ConfigError,
@@ -12,6 +17,7 @@ import {
 } from './errors'
 
 export {
+  Registry,
   getConfig,
   mergeConfig,
   defaultConfigGetStrategy,

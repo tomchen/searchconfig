@@ -6,6 +6,12 @@ import {
 } from './getconfig'
 import { registry } from './registry'
 
+/**
+ * Detect / guess what the loader is according to the file name
+ * @param fileName - File name
+ * @returns Loader name in string
+ * @public
+ */
 const autoDetectLoader = (fileName: string): string => {
   const ext = extname(fileName)
   if (ext in registry.exts) {
@@ -18,6 +24,7 @@ const autoDetectLoader = (fileName: string): string => {
  * Construct a default configGetStrategy (to be used in {@link mergeConfig})
  * @param packageName - The name of the package
  * @param options - options. \{
+ * @public
  *
  * `before`: your configGetStrategy (which takes precedence) to be inserted before the generated configGetStrategy, it can be configGetStrategy object or array of configGetStrategy object
  *
@@ -26,6 +33,8 @@ const autoDetectLoader = (fileName: string): string => {
  * \}
  *
  * @example
+ *
+ * @public
  */
 const defaultConfigGetStrategy = (
   packageName: string,
@@ -35,9 +44,10 @@ const defaultConfigGetStrategy = (
       | ConfigGetStrategyFilenameType
       | ConfigGetStrategyType
     hasYaml?: boolean
+    fromDir?: string
   }
 ): ConfigGetStrategyType => {
-  const { before, hasYaml } = {
+  const { before, hasYaml, fromDir } = {
     hasYaml: false,
     ...options,
   }
@@ -59,6 +69,7 @@ const defaultConfigGetStrategy = (
       ],
       ...(hasYaml ? { loader: [null, 'jsonoryaml'] } : {}),
       key: [packageName],
+      ...(fromDir !== undefined ? { fromDir } : {}),
     },
   ]
   if (before !== undefined) {
