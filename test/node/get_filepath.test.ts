@@ -1,4 +1,4 @@
-import { getConfig } from '../src/index'
+import { getConfig } from '../../src/index'
 import * as path from 'path'
 import * as yaml from 'yaml'
 
@@ -89,9 +89,10 @@ test('get key gmc.option in good2.package.json with null loader', async () => {
   expect(fileConfig).toEqual(expectedConfObj)
 })
 
-import { registry } from '../src/registry'
-import { ConfigUnknownLoaderError, ConfigSyntaxError } from '../src/index'
+import { registry } from '../../src/registry'
+import { ConfigUnknownLoaderError, ConfigSyntaxError } from '../../src/index'
 test('get good.yaml with npm package yaml, unregistered & registered', async () => {
+  expect.assertions(6)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'good.yaml'),
@@ -121,6 +122,7 @@ test('get good.yaml with npm package yaml, unregistered & registered', async () 
 })
 
 test('get good.yml2 with npm package yaml, unregistered & registered', async () => {
+  expect.assertions(6)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'good.yml2'),

@@ -1,5 +1,5 @@
-import { requireFromString } from './_util'
-import { ConfigSyntaxError } from './errors'
+import { requireFromString } from './_util.ts'
+import { ConfigSyntaxError } from './errors.ts'
 
 /**
  * Parse a string that is JSON or YAML: try JSON.parse first,

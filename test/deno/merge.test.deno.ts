@@ -1,4 +1,5 @@
-import { mergeConfig, ConfigMergeStrategyType } from '../src/index'
+import { mergeConfig, ConfigMergeStrategyType } from '../../deno/index.ts'
+import { expect } from 'https://deno.land/x/expect/mod.ts'
 
 test('merge, order', async () => {
   const configMergeStrategy: ConfigMergeStrategyType = {
@@ -20,21 +21,21 @@ test('merge, order', async () => {
   }
 
   const fileConfig = {
-    opta: 'apple',
+    opta: 1,
     optb: 'blue',
     optc: 'dog',
   }
 
   const cliOptions = {
-    option1: 'banana',
+    option1: 0,
     option2: 'red',
     option3: 'cat',
   }
 
   const defaultConfig = {
-    'option-1': 'orange',
+    'option-1': 2,
     'option-2': 'yellow',
-    'option-3': 'bird',
+    'option-3': '',
   }
 
   const configs = {
@@ -46,9 +47,9 @@ test('merge, order', async () => {
   const config = mergeConfig(configs, configMergeStrategy)
 
   const expectedConfig = {
-    option_one: 'banana',
+    option_one: 0,
     option_two: 'blue',
-    option_three: 'bird',
+    option_three: '',
   }
 
   expect(config).toEqual(expectedConfig)

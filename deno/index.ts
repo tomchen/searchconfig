@@ -1,7 +1,7 @@
-import { getConfig, ConfigGetStrategyType } from './getconfig'
-import { mergeConfig, ConfigMergeStrategyType } from './mergeconfig'
-import { defaultConfigGetStrategy } from './util'
-import { registry, LoaderFuncType, LoaderErrorFuncType } from './registry'
+import { getConfig, ConfigGetStrategyType } from './getconfig.ts'
+import { mergeConfig, ConfigMergeStrategyType } from './mergeconfig.ts'
+import { defaultConfigGetStrategy } from './util.ts'
+import { registry, LoaderFuncType, LoaderErrorFuncType } from './registry.ts'
 
 import {
   ConfigError,
@@ -9,7 +9,7 @@ import {
   ConfigSyntaxError,
   ConfigUnknownLoaderError,
   ConfigNotFoundError,
-} from './errors'
+} from './errors.ts'
 
 export {
   getConfig,

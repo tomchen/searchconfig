@@ -1,5 +1,5 @@
-import * as path from 'path'
-import * as fs from 'fs'
+import * as path from 'https://deno.land/std@0.84.0/path/mod.ts'
+import { exists } from 'https://deno.land/std@0.84.0/fs/mod.ts'
 
 /**
  * Check if file (or folder) exists in the specified path
@@ -9,18 +9,7 @@ import * as fs from 'fs'
  *
  * @internal
  */
-const fileExists = (filePath: string): Promise<boolean> =>
-  new Promise((resolve, reject) => {
-    fs.stat(filePath, (err) => {
-      if (err === null) {
-        resolve(true)
-      } else if (err.code === 'ENOENT') {
-        resolve(false)
-      } else {
-        reject(`Error: ${err.code}`)
-      }
-    })
-  })
+const fileExists = exists
 
 /**
  * Find a file by walking up parent directories
@@ -39,8 +28,7 @@ const findup = async (
   if (typeof filenames === 'string') {
     filenames = [filenames]
   }
-  let dir: string =
-    fromDir !== undefined ? path.resolve(fromDir) : process.cwd()
+  let dir: string = fromDir !== undefined ? path.resolve(fromDir) : Deno.cwd()
   const { root } = path.parse(dir)
   let filePath: string
 
@@ -113,14 +101,14 @@ const keyStr2Arr = (key: string): string[] => {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const requireFromString = (str: string): any => {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const Module = require('module')
-  const filename = ''
-  const m = new Module(filename)
-  m.filename = filename
-  m.paths = Module._nodeModulePaths(path.dirname(''))
-  m._compile(str, filename)
-  return m.exports
+  // // eslint-disable-next-line @typescript-eslint/no-var-requires
+  // const Module = require('module')
+  // const filename = ''
+  // const m = new Module(filename)
+  // m.filename = filename
+  // m.paths = Module._nodeModulePaths(path.dirname(''))
+  // m._compile(str, filename)
+  // return m.exports
 }
 
 export { findup, fileExists, keyStr2Arr, requireFromString }

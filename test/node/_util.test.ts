@@ -1,4 +1,9 @@
-import { findup, fileExists, keyStr2Arr, requireFromString, jsonoryaml } from '../src/_util'
+import {
+  findup,
+  fileExists,
+  keyStr2Arr,
+  requireFromString,
+} from '../../src/_util'
 import * as path from 'path'
 import * as fs from 'fs'
 
@@ -6,21 +11,21 @@ describe('findup all', () => {
   const fromDir = './test/file_to_test/findup/from'
 
   describe('fileExists', () => {
-    test('fileExists true', async () => {
+    test('true', async () => {
       expect(await fileExists(path.join(fromDir, 'good.js'))).toBe(true)
     })
 
-    test('fileExists false', async () => {
+    test('false', async () => {
       expect(
         await fileExists(path.join(fromDir, 'inexistentdir/good.js'))
       ).toBe(false)
     })
 
-    test('fileExists folder true', async () => {
+    test('folder true', async () => {
       expect(await fileExists(fromDir)).toBe(true)
     })
 
-    test('fileExists non ENOENT error code', async () => {
+    test('non ENOENT error code', async () => {
       const spy = jest.spyOn(fs, 'stat').mockImplementation((_, cb) => {
         cb(
           { name: 'Error', message: 'fake error', code: 'MOCKINGJAY' },
@@ -41,7 +46,7 @@ describe('findup all', () => {
   })
 
   describe('findup', () => {
-    test('findup no fromDir true', async () => {
+    test('no fromDir true', async () => {
       // in some version of node, process.cwd() returns lowercased drive letter
       const firstUpper = (s: string): string =>
         s.charAt(0).toUpperCase() + s.slice(1)
@@ -53,35 +58,35 @@ describe('findup all', () => {
         res[0] = firstUpper(res[0])
 
         expect(res).toEqual([
-          firstUpper(path.join(__dirname, '../package.json')),
+          firstUpper(path.join(__dirname, '../../package.json')),
           'package.json',
         ])
       }
     })
 
-    test('findup no fromDir false', async () => {
+    test('no fromDir false', async () => {
       expect(await findup('inexistent.json')).toBe(false)
     })
 
-    test('findup fromDir true', async () => {
+    test('fromDir true', async () => {
       expect(await findup('good.js', fromDir)).toEqual([
         path.resolve(fromDir, 'good.js'),
         'good.js',
       ])
     })
 
-    test('findup fromDir false', async () => {
+    test('fromDir false', async () => {
       expect(await findup('inexistent.js', fromDir)).toBe(false)
     })
 
-    test('findup fromDir in upper folder', async () => {
+    test('fromDir in upper folder', async () => {
       expect(await findup('empty.js', fromDir)).toEqual([
         path.resolve(fromDir, '../empty.js'),
         'empty.js',
       ])
     })
 
-    test('findup multiple files fromDir true in upper folder', async () => {
+    test('multiple files fromDir true in upper folder', async () => {
       expect(await findup(['inexistent.js', 'empty.js'], fromDir)).toEqual([
         path.resolve(fromDir, '../empty.js'),
         'empty.js',
@@ -133,19 +138,5 @@ describe('requireFromString', () => {
     expect(requireFromString('module.exports = { test: 132 }')).toEqual({
       test: 132,
     })
-  })
-})
-
-import { registry } from '../src/registry'
-import * as yaml from 'yaml'
-describe('jsonoryaml', () => {
-  registry.addLoader('yaml', yaml.parse)
-  const obj = { "test": 132, "test2": "abc" }
-  test('json', () => {
-    expect(jsonoryaml('{ "test": 132, "test2": "abc" }')).toEqual(obj)
-  })
-
-  test('yaml', () => {
-    expect(jsonoryaml('---\ntest: 132\ntest2: abc')).toEqual(obj)
   })
 })

@@ -13,6 +13,7 @@
     "clean": "node tools/cleanup",
     "package": "npm run build && npm pack",
     "test": "jest",
+    "test:deno": "deno test --unstable --allow-read --allow-write test/deno/_util.test.deno.ts",
     "test:cov": "jest --coverage",
     "addscope": "node tools/packagejson name @tomchen/searchconfig && prettier --write package.json"
   },

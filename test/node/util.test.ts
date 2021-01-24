@@ -1,7 +1,12 @@
-import { autoDetectLoader, defaultConfigGetStrategy } from '../src/util'
-import { getConfig, ConfigNotFoundError } from '../src/index'
-import { registry } from '../src/registry'
+import { autoDetectLoader } from '../../src/util'
+import {
+  getConfig,
+  defaultConfigGetStrategy,
+  registry,
+  ConfigNotFoundError,
+} from '../../src/index'
 import * as path from 'path'
+import * as yaml from 'yaml'
 
 describe('autoDetectLoader', () => {
   test('defaultExtRegistry', () => {
@@ -174,7 +179,6 @@ describe('defaultConfigGetStrategy', () => {
   })
 
   describe('with getConfig', () => {
-    const fromDir = './test/file_to_test/defaultconfig/1/from/'
     const expectedConfObj = {
       'option-1': { fruit: 'orange' },
       'option-2': ['yellow'],
@@ -182,7 +186,8 @@ describe('defaultConfigGetStrategy', () => {
       'option-5': 'hello',
     }
 
-    test('before', async () => {
+    test('before 0', async () => {
+      const fromDir = './test/file_to_test/defaultconfig/0/from/'
       const stra = defaultConfigGetStrategy('johndoe', {
         before: [
           {
@@ -196,15 +201,51 @@ describe('defaultConfigGetStrategy', () => {
       expect(fileConfig).toEqual(expectedConfObj)
     })
 
-    test('fromDir simple', async () => {
+    // for (const i of Array.from({ length: 13 }, (_, i) => i + 1)) {
+    // test(`fromDir simple: ${i.toString()}`, async () => {
+    test(`fromDir simple from 1 to 13`, async () => {
+      registry.addLoader('yaml', yaml.parse)
+      for (const i of Array.from({ length: 13 }, (_, i) => i + 1)) {
+        const fromDir = `./test/file_to_test/defaultconfig/${i.toString()}/from/`
+        const stra = defaultConfigGetStrategy('johndoe', {
+          hasYaml: true,
+          fromDir,
+        })
+        try {
+          const fileConfig = await getConfig(stra)
+          expect(fileConfig).toEqual(expectedConfObj)
+        } catch (error) {
+          console.log(`i = ${i.toString()}`)
+          throw error
+        }
+      }
+    })
+    // }
+
+    test('fromDir simple not found 14', async () => {
+      expect.assertions(2)
+
+      const fromDir = './test/file_to_test/defaultconfig/14/from/'
       const stra = defaultConfigGetStrategy('johndoe', {
         hasYaml: true,
         fromDir,
       })
+      const stra0 = stra[0]
+      if ('filename' in stra0 && Array.isArray(stra0.filename)) {
+        // remove first element 'package.json'
+        stra0.filename.shift()
+      }
+      if ('loader' in stra0 && Array.isArray(stra0.loader)) {
+        // remove first element null
+        stra0.loader.shift()
+      }
 
-      const fileConfig = await getConfig(stra)
-
-      expect(fileConfig).toEqual(expectedConfObj)
+      await getConfig(stra).catch((error) => {
+        expect(error).toBeInstanceOf(ConfigNotFoundError)
+        expect(error).toEqual(
+          new ConfigNotFoundError('Cannot find config file')
+        )
+      })
     })
   })
 })

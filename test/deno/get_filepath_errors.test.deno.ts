@@ -5,9 +5,10 @@ import {
   ConfigSyntaxError,
   ConfigUnknownLoaderError,
   ConfigNotFoundError,
-} from '../src/index'
-import * as path from 'path'
-import * as yaml from 'yaml'
+} from '../../deno/index.ts'
+import * as path from 'https://deno.land/std@0.84.0/path/mod.ts'
+import * as yaml from 'https://deno.land/std@0.84.0/encoding/yaml.ts'
+import { expect } from "https://deno.land/x/expect/mod.ts"
 
 const fromDir = './test/file_to_test/filepath/'
 
@@ -40,6 +41,7 @@ test('error classes', () => {
 })
 
 test('get malformed.js (require)', async () => {
+  expect.assertions(2)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'malformed.js'),
@@ -54,6 +56,7 @@ test('get malformed.js (require)', async () => {
 })
 
 test('get malformed.json', async () => {
+  expect.assertions(1)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'malformed.json'),
@@ -67,6 +70,7 @@ test('get malformed.json', async () => {
 })
 
 test('get malformed.yaml', async () => {
+  expect.assertions(1)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'malformed.yaml'),
@@ -80,6 +84,7 @@ test('get malformed.yaml', async () => {
 })
 
 test('unknown loader string', async () => {
+  expect.assertions(2)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'good.json'),
@@ -94,6 +99,7 @@ test('unknown loader string', async () => {
 })
 
 test('get inexistent file', async () => {
+  expect.assertions(2)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'inexistent.js'),
@@ -108,6 +114,7 @@ test('get inexistent file', async () => {
 })
 
 test('get empty.js (require)', async () => {
+  expect.assertions(1)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'empty.js'),
@@ -121,6 +128,7 @@ test('get empty.js (require)', async () => {
 })
 
 test('get empty.json', async () => {
+  expect.assertions(1)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'empty.json'),
@@ -134,6 +142,7 @@ test('get empty.json', async () => {
 })
 
 test('get empty.package.json', async () => {
+  expect.assertions(1)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'empty.package.json'),
@@ -148,6 +157,7 @@ test('get empty.package.json', async () => {
 })
 
 test('get empty.yaml', async () => {
+  expect.assertions(1)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'empty.yaml'),
@@ -160,8 +170,9 @@ test('get empty.yaml', async () => {
   })
 })
 
-import * as _util from '../src/_util'
+import * as _util from '../../deno/_util.ts'
 test('mock keyStr2Arr to simulate error', async () => {
+  expect.assertions(2)
   const spy = jest.spyOn(_util, 'keyStr2Arr').mockImplementation((_) => {
     throw 'my err'
   })

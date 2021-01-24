@@ -1,10 +1,10 @@
-import * as path from 'path'
+import { extname } 'https://deno.land/std@0.84.0/path/mod.ts'
 import {
   ConfigGetStrategyType,
   ConfigGetStrategyFilepathType,
   ConfigGetStrategyFilenameType,
-} from './getconfig'
-import { registry } from './registry'
+} from './getconfig.ts'
+import { registry } from './registry.ts'
 
 /**
  * Detect / guess what the loader is according to the file name
@@ -13,7 +13,7 @@ import { registry } from './registry'
  * @public
  */
 const autoDetectLoader = (fileName: string): string => {
-  const ext = path.extname(fileName)
+  const ext = extname(fileName)
   if (ext in registry.exts) {
     return registry.exts[ext]
   }

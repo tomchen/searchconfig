@@ -1,4 +1,4 @@
-import { getConfig, ConfigNotFoundError } from '../src/index'
+import { getConfig, ConfigNotFoundError } from '../../src/index'
 import * as path from 'path'
 
 const fromDir = './test/file_to_test/filename/from'
@@ -19,6 +19,22 @@ test('simplest uppercased loader string', async () => {
   ]
 
   const fileConfig = await getConfig(configGetStrategy)
+
+  expect(fileConfig).toEqual(expectedConfObj)
+})
+
+test('simplest exports without module.', async () => {
+  const configGetStrategy = [
+    {
+      filename: 'goodexports.js',
+      loader: 'js',
+      fromDir,
+    },
+  ]
+
+  const fileConfig = await getConfig(configGetStrategy)
+
+  console.log(fileConfig)
 
   expect(fileConfig).toEqual(expectedConfObj)
 })
@@ -214,6 +230,7 @@ test('get i_am_js_but_has_json_ext.json', async () => {
 })
 
 test('cannot find config file', async () => {
+  expect.assertions(2)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'inexistent.json'),
