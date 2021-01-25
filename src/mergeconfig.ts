@@ -1,8 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ConfValueType = any
-
-type ConfType = { [key: string]: ConfValueType }
-type ConfsType = { [key: string]: ConfType }
+type ConfType = Record<string, unknown>
+type ConfsType = Record<string, ConfType>
 
 /**
  * Type of `configMergeStrategy` parameter in function {@link mergeConfig}

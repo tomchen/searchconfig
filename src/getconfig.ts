@@ -8,12 +8,8 @@ import * as path from 'path'
 import * as fs from 'fs'
 import { registry, LoaderFuncType } from './registry'
 import { autoDetectLoader } from './util'
-const readFile = fs.promises.readFile
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ConfValueType = any
-
-type ConfType = { [key: string]: ConfValueType }
+type ConfType = Record<string, unknown>
 
 type ConfigGetStrategyFilepathType = {
   filepath: string
@@ -58,7 +54,7 @@ const getConfigInfo = async (
         if (await fileExists(pathFull)) {
           // file found!
           configPath = pathFull
-          loader = straItem.loader || null
+          loader = straItem.loader ?? null
           if (straItem.key !== undefined && straItem.key !== null) {
             key = keyStr2Arr(straItem.key)
           }
@@ -76,7 +72,7 @@ const getConfigInfo = async (
 
         const findupRes = await findup(
           filenames,
-          straItem.fromDir || process.cwd()
+          straItem.fromDir ?? process.cwd()
         )
         if (findupRes !== false) {
           // file found!
@@ -93,7 +89,7 @@ const getConfigInfo = async (
             straItem.loader !== undefined
           ) {
             // Array.isArray(straItem.loader) === true
-            loader = straItem.loader[i] || null
+            loader = straItem.loader[i] ?? null
           }
 
           if (straItem.key !== undefined && straItem.key !== null) {
@@ -160,14 +156,14 @@ const getLoaderFunc = (loader: string | LoaderFuncType): LoaderFuncType => {
  */
 const getConfig = async (
   configGetStrategy: ConfigGetStrategyType
-): Promise<ConfType | undefined> => {
+): Promise<ConfType | unknown | undefined> => {
   try {
     const { configPath, loader, key } = await getConfigInfo(configGetStrategy)
 
     if (configPath !== null) {
-      let config
+      let config: ConfType | unknown
 
-      const fileContent = await readFile(configPath, 'utf8')
+      const fileContent = await fs.promises.readFile(configPath, 'utf8')
 
       if (fileContent.trim() === '') {
         throw new ConfigFileEmptyError('The config file is empty')
@@ -185,7 +181,9 @@ const getConfig = async (
 
       if (key !== undefined && key !== null) {
         for (const k of key) {
-          config = config[k]
+          if (typeof config === 'object' && config !== null && k in config) {
+            config = (<ConfType>config)[k]
+          }
         }
       }
 

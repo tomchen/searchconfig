@@ -31,7 +31,7 @@ indent_style = tab
 trim_trailing_whitespace = false
 
 # Ignore paths
-[/test/file_to_test/**]
+[/test/**/file_to_test/**]
 charset = unset
 end_of_line = unset
 insert_final_newline = unset

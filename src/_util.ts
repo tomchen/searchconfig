@@ -111,8 +111,7 @@ const keyStr2Arr = (key: string): string[] => {
  *
  * @internal
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const requireFromString = (str: string): any => {
+const requireFromString = (str: string): unknown => {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const Module = require('module')
   const filename = ''

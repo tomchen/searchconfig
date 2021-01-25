@@ -13,7 +13,7 @@
     "clean": "node tools/cleanup",
     "package": "npm run build && npm pack",
     "test": "jest",
-    "test:deno": "deno test --unstable --allow-read --allow-write test/deno/_util.test.deno.ts",
+    "test:deno": "cd deno && npm run test",
     "test:cov": "jest --coverage",
     "addscope": "node tools/packagejson name @tomchen/searchconfig && prettier --write package.json"
   },
@@ -32,6 +32,7 @@
     "cosmiconfig",
     "rc",
     "settings",
+    "deno",
     "cli",
     "typescript"
   ],
@@ -48,16 +49,16 @@
   "dependencies": {},
   "devDependencies": {
     "@types/jest": "^26.0.20",
-    "@typescript-eslint/eslint-plugin": "^4.14.0",
-    "@typescript-eslint/parser": "^4.14.0",
+    "@typescript-eslint/eslint-plugin": "^4.14.1",
+    "@typescript-eslint/parser": "^4.14.1",
     "eslint": "^7.18.0",
     "eslint-config-prettier": "^7.2.0",
     "eslint-plugin-prettier": "^3.3.1",
-    "eslint-plugin-tsdoc": "^0.2.10",
+    "eslint-plugin-tsdoc": "^0.2.11",
     "jest": "^26.6.3",
     "prettier": "^2.2.1",
     "ts-jest": "^26.4.4",
-    "typedoc": "^0.20.16",
+    "typedoc": "^0.20.19",
     "typescript": "^4.1.3",
     "yaml": "^1.10.0"
   },

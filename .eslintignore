@@ -2,7 +2,5 @@
 *.config.ts
 *.test.js
 *.test.ts
-dist/cjs
-dist/esm
-dist/types
-test/file_to_test
+dist
+file_to_test

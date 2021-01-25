@@ -10,8 +10,7 @@ import { ConfigSyntaxError } from './errors'
  *
  * @internal
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const jsonoryaml = (str: string): any => {
+const jsonoryaml = (str: string): unknown => {
   try {
     return JSON.parse(str)
   } catch (error) {
@@ -29,8 +28,7 @@ const jsonoryaml = (str: string): any => {
  *
  * @public
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type LoaderFuncType = (str: string) => { [key: string]: any }
+type LoaderFuncType = (str: string) => unknown
 
 /**
  * Type of `loaderErrorFunc` parameter in function `registry.addLoaderError()`
@@ -41,26 +39,30 @@ type LoaderFuncType = (str: string) => { [key: string]: any }
  */
 type LoaderErrorFuncType = (error: Error, configPath: string) => Error
 
-type LoaderRegistryType = { [loaderName: string]: LoaderFuncType }
+type LoaderRegistryType = Record<string, LoaderFuncType>
 type LoaderErrorRegistryType = {
   [key: string]: LoaderErrorFuncType
 }
-type ExtRegistryType = { [ext: string]: string }
+type ExtRegistryType = Record<string, string>
 
-const defaultLoaderRegistry = {
+const defaultLoaderRegistry: LoaderRegistryType = {
   js: requireFromString,
   json: JSON.parse,
   jsonoryaml,
 }
-const defaultLoaderErrorRegistry = {
+const defaultLoaderErrorRegistry: LoaderErrorRegistryType = {
   js: (error: Error, configPath: string): ConfigSyntaxError =>
-    new ConfigSyntaxError(`Cannot parse (require) the file ${configPath}`),
+    new ConfigSyntaxError(
+      `Cannot parse (require or import) the file ${configPath}. Detail: ${error.message}`,
+      error
+    ),
   json: (error: Error): ConfigSyntaxError =>
-    new ConfigSyntaxError(error.message),
+    new ConfigSyntaxError(error.message, error),
 }
 const defaultExtRegistry = {
   '.js': 'js',
   '.cjs': 'js',
+  '.ts': 'ts',
   '.json': 'json',
   '.yaml': 'yaml',
   '.yml': 'yaml',
