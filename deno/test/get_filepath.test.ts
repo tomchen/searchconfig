@@ -3,6 +3,7 @@ import * as path from 'https://deno.land/std@0.84.0/path/mod.ts'
 import * as yaml from 'https://deno.land/std@0.84.0/encoding/yaml.ts'
 import { ConfigUnknownLoaderError, ConfigSyntaxError } from '../src/index.ts'
 import { expect, test, describe } from './jest_to_deno.ts'
+import { assertThrowsAsync } from 'https://deno.land/std@0.84.0/testing/asserts.ts'
 
 const fromDir = './test/file_to_test/filepath/'
 
@@ -68,7 +69,7 @@ describe('Get primitive', () => {
   })
 
   test('single_function.json', async () => {
-    expect.assertions(2)
+    // expect.assertions(2)
 
     const configGetStrategy = [
       {
@@ -76,7 +77,11 @@ describe('Get primitive', () => {
       },
     ]
 
-    await getConfig(configGetStrategy).catch((error) => {
+    const getConfigPromise = getConfig(configGetStrategy)
+
+    await assertThrowsAsync(() => getConfigPromise)
+
+    await getConfigPromise.catch((error) => {
       expect(error).toBeInstanceOf(ConfigSyntaxError)
       expect(error.originalError).not.toBeUndefined()
     })
@@ -184,7 +189,7 @@ describe('Get object', () => {
   })
 
   test('get good.yaml with npm package yaml, unregistered & registered', async () => {
-    expect.assertions(6)
+    // expect.assertions(6)
     const configGetStrategy = [
       {
         filepath: path.join(fromDir, 'good.yaml'),
@@ -198,7 +203,9 @@ describe('Get object', () => {
         filepath: path.join(fromDir, 'good.yaml'),
       },
     ]
-    await getConfig(configGetStrategy2).catch((error) => {
+    const getConfigPromise = getConfig(configGetStrategy2)
+    await assertThrowsAsync(() => getConfigPromise)
+    await getConfigPromise.catch((error) => {
       expect(error).toBeInstanceOf(ConfigUnknownLoaderError)
       expect(error).toEqual(
         new ConfigUnknownLoaderError('Unknown loader string')
@@ -209,7 +216,9 @@ describe('Get object', () => {
     expect(await getConfig(configGetStrategy2)).toEqual(expectedConfObj)
 
     registry.reset()
-    await getConfig(configGetStrategy2).catch((error) => {
+    const getConfigPromise2 = getConfig(configGetStrategy2)
+    await assertThrowsAsync(() => getConfigPromise2)
+    await getConfigPromise2.catch((error) => {
       expect(error).toBeInstanceOf(ConfigUnknownLoaderError)
       expect(error).toEqual(
         new ConfigUnknownLoaderError('Unknown loader string')
@@ -218,7 +227,7 @@ describe('Get object', () => {
   })
 
   test('get good.yml2 with npm package yaml, unregistered & registered', async () => {
-    expect.assertions(8)
+    // expect.assertions(8)
     const configGetStrategy = [
       {
         filepath: path.join(fromDir, 'good.yml2'),
@@ -232,13 +241,17 @@ describe('Get object', () => {
         filepath: path.join(fromDir, 'good.yml2'),
       },
     ]
-    await getConfig(configGetStrategy2).catch((error) => {
+    const getConfigPromise = getConfig(configGetStrategy2)
+    await assertThrowsAsync(() => getConfigPromise)
+    await getConfigPromise.catch((error) => {
       expect(error).toBeInstanceOf(ConfigSyntaxError)
       expect(error.originalError).not.toBeUndefined()
     })
 
     registry.addExt('.yml2', 'yaml2')
-    await getConfig(configGetStrategy2).catch((error) => {
+    const getConfigPromise2 = getConfig(configGetStrategy2)
+    await assertThrowsAsync(() => getConfigPromise2)
+    await getConfigPromise2.catch((error) => {
       expect(error).toBeInstanceOf(ConfigUnknownLoaderError)
       expect(error).toEqual(
         new ConfigUnknownLoaderError('Unknown loader string')
@@ -249,7 +262,9 @@ describe('Get object', () => {
     expect(await getConfig(configGetStrategy2)).toEqual(expectedConfObj)
 
     registry.reset()
-    await getConfig(configGetStrategy2).catch((error) => {
+    const getConfigPromise3 = getConfig(configGetStrategy2)
+    await assertThrowsAsync(() => getConfigPromise3)
+    await getConfigPromise3.catch((error) => {
       expect(error).toBeInstanceOf(ConfigSyntaxError)
       expect(error.originalError).not.toBeUndefined()
     })

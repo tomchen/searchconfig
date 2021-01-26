@@ -129,18 +129,14 @@ const getConfigInfo = async (
 }
 
 const getLoaderFunc = (loader: string | LoaderFuncType): LoaderFuncType => {
-  try {
-    if (typeof loader === 'string') {
-      if (!(loader in registry.loaders)) {
-        throw new ConfigUnknownLoaderError('Unknown loader string')
-      }
-      return registry.loaders[loader]
-    } else {
-      // typeof loader === 'function' (loader can't be null here)
-      return loader
+  if (typeof loader === 'string') {
+    if (!(loader in registry.loaders)) {
+      throw new ConfigUnknownLoaderError('Unknown loader string')
     }
-  } catch (error) {
-    throw error
+    return registry.loaders[loader]
+  } else {
+    // typeof loader === 'function' (loader can't be null here)
+    return loader
   }
 }
 

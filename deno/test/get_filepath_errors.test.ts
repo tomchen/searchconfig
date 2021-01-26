@@ -8,7 +8,8 @@ import {
 } from '../src/index.ts'
 import * as path from 'https://deno.land/std@0.84.0/path/mod.ts'
 import * as yaml from 'https://deno.land/std@0.84.0/encoding/yaml.ts'
-import { expect, test, describe } from './jest_to_deno.ts'
+import { expect, test } from './jest_to_deno.ts'
+import { assertThrowsAsync } from 'https://deno.land/std@0.84.0/testing/asserts.ts'
 
 const fromDir = './test/file_to_test/filepath/'
 
@@ -73,7 +74,7 @@ test('error classes', () => {
 })
 
 test('get malformed.js (require or import)', async () => {
-  expect.assertions(3)
+  // expect.assertions(3)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'malformed.js'),
@@ -81,7 +82,11 @@ test('get malformed.js (require or import)', async () => {
     },
   ]
 
-  await getConfig(configGetStrategy).catch((error) => {
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await assertThrowsAsync(() => getConfigPromise)
+
+  await getConfigPromise.catch((error) => {
     expect(error).toBeInstanceOf(ConfigSyntaxError)
     expect(error.originalError).not.toBeUndefined()
     expect(error.message).toMatch(
@@ -91,7 +96,7 @@ test('get malformed.js (require or import)', async () => {
 })
 
 test('get malformed.json', async () => {
-  expect.assertions(2)
+  // expect.assertions(2)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'malformed.json'),
@@ -99,14 +104,18 @@ test('get malformed.json', async () => {
     },
   ]
 
-  await getConfig(configGetStrategy).catch((error) => {
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await assertThrowsAsync(() => getConfigPromise)
+
+  await getConfigPromise.catch((error) => {
     expect(error).toBeInstanceOf(ConfigSyntaxError)
     expect(error.originalError).not.toBeUndefined()
   })
 })
 
 test('get malformed.yaml', async () => {
-  expect.assertions(1)
+  // expect.assertions(1)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'malformed.yaml'),
@@ -114,13 +123,17 @@ test('get malformed.yaml', async () => {
     },
   ]
 
-  await getConfig(configGetStrategy).catch((error) => {
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await assertThrowsAsync(() => getConfigPromise)
+
+  await getConfigPromise.catch((error) => {
     expect(error).toBeInstanceOf(Error) // YAMLSemanticError
   })
 })
 
 test('unknown loader string', async () => {
-  expect.assertions(2)
+  // expect.assertions(2)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'good.json'),
@@ -128,14 +141,18 @@ test('unknown loader string', async () => {
     },
   ]
 
-  await getConfig(configGetStrategy).catch((error) => {
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await assertThrowsAsync(() => getConfigPromise)
+
+  await getConfigPromise.catch((error) => {
     expect(error).toBeInstanceOf(ConfigUnknownLoaderError)
     expect(error).toEqual(new ConfigUnknownLoaderError('Unknown loader string'))
   })
 })
 
 test('get inexistent file', async () => {
-  expect.assertions(2)
+  // expect.assertions(2)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'inexistent.js'),
@@ -143,14 +160,18 @@ test('get inexistent file', async () => {
     },
   ]
 
-  await getConfig(configGetStrategy).catch((error) => {
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await assertThrowsAsync(() => getConfigPromise)
+
+  await getConfigPromise.catch((error) => {
     expect(error).toBeInstanceOf(ConfigNotFoundError)
     expect(error).toEqual(new ConfigNotFoundError('Cannot find config file'))
   })
 })
 
 test('get empty.js (require or import)', async () => {
-  expect.assertions(1)
+  // expect.assertions(1)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'empty.js'),
@@ -158,13 +179,40 @@ test('get empty.js (require or import)', async () => {
     },
   ]
 
-  await getConfig(configGetStrategy).catch((error) => {
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await assertThrowsAsync(() => getConfigPromise)
+
+  await getConfigPromise.catch((error) => {
     expect(error).toEqual(new ConfigFileEmptyError('The config file is empty'))
   })
 })
 
+test('get deno_no_default_empty_obj.js (require or import)', async () => {
+  // Deno only
+  // expect.assertions(3)
+  const configGetStrategy = [
+    {
+      filepath: path.join(fromDir, 'deno_no_default_empty_obj.js'),
+      loader: 'js',
+    },
+  ]
+
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await assertThrowsAsync(() => getConfigPromise)
+
+  await getConfigPromise.catch((error) => {
+    expect(error).toBeInstanceOf(ConfigSyntaxError)
+    expect(error.originalError).toBeUndefined()
+    expect(error.message).toMatch(
+      /^Cannot parse \(require or import\) the file /
+    )
+  })
+})
+
 test('get empty.json', async () => {
-  expect.assertions(1)
+  // expect.assertions(1)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'empty.json'),
@@ -172,13 +220,17 @@ test('get empty.json', async () => {
     },
   ]
 
-  await getConfig(configGetStrategy).catch((error) => {
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await assertThrowsAsync(() => getConfigPromise)
+
+  await getConfigPromise.catch((error) => {
     expect(error).toEqual(new ConfigFileEmptyError('The config file is empty'))
   })
 })
 
 test('get empty.package.json', async () => {
-  expect.assertions(1)
+  // expect.assertions(1)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'empty.package.json'),
@@ -187,13 +239,17 @@ test('get empty.package.json', async () => {
     },
   ]
 
-  await getConfig(configGetStrategy).catch((error) => {
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await assertThrowsAsync(() => getConfigPromise)
+
+  await getConfigPromise.catch((error) => {
     expect(error).toEqual(new ConfigFileEmptyError('The config file is empty'))
   })
 })
 
 test('get empty.yaml', async () => {
-  expect.assertions(1)
+  // expect.assertions(1)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'empty.yaml'),
@@ -201,7 +257,11 @@ test('get empty.yaml', async () => {
     },
   ]
 
-  await getConfig(configGetStrategy).catch((error) => {
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await assertThrowsAsync(() => getConfigPromise)
+
+  await getConfigPromise.catch((error) => {
     expect(error).toEqual(new ConfigFileEmptyError('The config file is empty'))
   })
 })

@@ -240,7 +240,9 @@ describe('defaultConfigGetStrategy', () => {
         stra0.loader.shift()
       }
 
-      await getConfig(stra).catch((error) => {
+      const getConfigPromise = getConfig(stra)
+
+      await getConfigPromise.catch((error) => {
         expect(error).toBeInstanceOf(ConfigNotFoundError)
         expect(error).toEqual(
           new ConfigNotFoundError('Cannot find config file')

@@ -8,6 +8,7 @@ import {
 import * as path from 'https://deno.land/std@0.84.0/path/mod.ts'
 import * as yaml from 'https://deno.land/std@0.84.0/encoding/yaml.ts'
 import { expect, test, describe } from './jest_to_deno.ts'
+import { assertThrowsAsync } from 'https://deno.land/std@0.84.0/testing/asserts.ts'
 
 describe('autoDetectLoader', () => {
   test('autoDetectLoader defaultExtRegistry', () => {
@@ -224,7 +225,7 @@ describe('defaultConfigGetStrategy', () => {
     // }
 
     test('defaultConfigGetStrategy with getConfig fromDir simple not found 14', async () => {
-      expect.assertions(2)
+      // expect.assertions(2)
 
       const fromDir = './test/file_to_test/defaultconfig/14/from/'
       const stra = defaultConfigGetStrategy('johndoe', {
@@ -241,7 +242,11 @@ describe('defaultConfigGetStrategy', () => {
         stra0.loader.shift()
       }
 
-      await getConfig(stra).catch((error) => {
+      const getConfigPromise = getConfig(stra)
+
+      await assertThrowsAsync(() => getConfigPromise)
+
+      await getConfigPromise.catch((error) => {
         expect(error).toBeInstanceOf(ConfigNotFoundError)
         expect(error).toEqual(
           new ConfigNotFoundError('Cannot find config file')

@@ -75,7 +75,9 @@ describe('Get primitive', () => {
       },
     ]
 
-    await getConfig(configGetStrategy).catch((error) => {
+    const getConfigPromise = getConfig(configGetStrategy)
+
+    await getConfigPromise.catch((error) => {
       expect(error).toBeInstanceOf(ConfigSyntaxError)
       expect(error.originalError).not.toBeUndefined()
     })
@@ -197,7 +199,8 @@ describe('Get object', () => {
         filepath: path.join(fromDir, 'good.yaml'),
       },
     ]
-    await getConfig(configGetStrategy2).catch((error) => {
+    const getConfigPromise = getConfig(configGetStrategy2)
+    await getConfigPromise.catch((error) => {
       expect(error).toBeInstanceOf(ConfigUnknownLoaderError)
       expect(error).toEqual(
         new ConfigUnknownLoaderError('Unknown loader string')
@@ -208,7 +211,8 @@ describe('Get object', () => {
     expect(await getConfig(configGetStrategy2)).toEqual(expectedConfObj)
 
     registry.reset()
-    await getConfig(configGetStrategy2).catch((error) => {
+    const getConfigPromise2 = getConfig(configGetStrategy2)
+    await getConfigPromise2.catch((error) => {
       expect(error).toBeInstanceOf(ConfigUnknownLoaderError)
       expect(error).toEqual(
         new ConfigUnknownLoaderError('Unknown loader string')
@@ -231,13 +235,15 @@ describe('Get object', () => {
         filepath: path.join(fromDir, 'good.yml2'),
       },
     ]
-    await getConfig(configGetStrategy2).catch((error) => {
+    const getConfigPromise = getConfig(configGetStrategy2)
+    await getConfigPromise.catch((error) => {
       expect(error).toBeInstanceOf(ConfigSyntaxError)
       expect(error.originalError).not.toBeUndefined()
     })
 
     registry.addExt('.yml2', 'yaml2')
-    await getConfig(configGetStrategy2).catch((error) => {
+    const getConfigPromise2 = getConfig(configGetStrategy2)
+    await getConfigPromise2.catch((error) => {
       expect(error).toBeInstanceOf(ConfigUnknownLoaderError)
       expect(error).toEqual(
         new ConfigUnknownLoaderError('Unknown loader string')
@@ -248,7 +254,8 @@ describe('Get object', () => {
     expect(await getConfig(configGetStrategy2)).toEqual(expectedConfObj)
 
     registry.reset()
-    await getConfig(configGetStrategy2).catch((error) => {
+    const getConfigPromise3 = getConfig(configGetStrategy2)
+    await getConfigPromise3.catch((error) => {
       expect(error).toBeInstanceOf(ConfigSyntaxError)
       expect(error.originalError).not.toBeUndefined()
     })

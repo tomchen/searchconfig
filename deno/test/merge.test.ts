@@ -1,5 +1,5 @@
 import { mergeConfig, ConfigMergeStrategyType } from '../src/index.ts'
-import { expect, test, describe } from './jest_to_deno.ts'
+import { expect, test } from './jest_to_deno.ts'
 
 test('merge, order', async () => {
   const configMergeStrategy: ConfigMergeStrategyType = {

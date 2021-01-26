@@ -1,6 +1,7 @@
 import { getConfig, ConfigNotFoundError } from '../src/index.ts'
 import * as path from 'https://deno.land/std@0.84.0/path/mod.ts'
-import { expect, test, describe } from './jest_to_deno.ts'
+import { expect, test } from './jest_to_deno.ts'
+import { assertThrowsAsync } from 'https://deno.land/std@0.84.0/testing/asserts.ts'
 
 const fromDir = './test/file_to_test/filename/from'
 const expectedConfObj = {
@@ -229,7 +230,7 @@ test('filepath and filename mix', async () => {
 // })
 
 test('cannot find config file', async () => {
-  expect.assertions(2)
+  // expect.assertions(2)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'inexistent.json'),
@@ -243,7 +244,11 @@ test('cannot find config file', async () => {
     },
   ]
 
-  await getConfig(configGetStrategy).catch((error) => {
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await assertThrowsAsync(() => getConfigPromise)
+
+  await getConfigPromise.catch((error) => {
     expect(error).toBeInstanceOf(ConfigNotFoundError)
     expect(error).toEqual(new ConfigNotFoundError('Cannot find config file'))
   })

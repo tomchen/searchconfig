@@ -80,7 +80,9 @@ test('get malformed.js (require or import)', async () => {
     },
   ]
 
-  await getConfig(configGetStrategy).catch((error) => {
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await getConfigPromise.catch((error) => {
     expect(error).toBeInstanceOf(ConfigSyntaxError)
     expect(error.originalError).not.toBeUndefined()
     expect(error.message).toMatch(
@@ -98,7 +100,9 @@ test('get malformed.json', async () => {
     },
   ]
 
-  await getConfig(configGetStrategy).catch((error) => {
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await getConfigPromise.catch((error) => {
     expect(error).toBeInstanceOf(ConfigSyntaxError)
     expect(error.originalError).not.toBeUndefined()
   })
@@ -113,7 +117,9 @@ test('get malformed.yaml', async () => {
     },
   ]
 
-  await getConfig(configGetStrategy).catch((error) => {
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await getConfigPromise.catch((error) => {
     expect(error).toBeInstanceOf(Error) // YAMLSemanticError
   })
 })
@@ -127,7 +133,9 @@ test('unknown loader string', async () => {
     },
   ]
 
-  await getConfig(configGetStrategy).catch((error) => {
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await getConfigPromise.catch((error) => {
     expect(error).toBeInstanceOf(ConfigUnknownLoaderError)
     expect(error).toEqual(new ConfigUnknownLoaderError('Unknown loader string'))
   })
@@ -142,7 +150,9 @@ test('get inexistent file', async () => {
     },
   ]
 
-  await getConfig(configGetStrategy).catch((error) => {
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await getConfigPromise.catch((error) => {
     expect(error).toBeInstanceOf(ConfigNotFoundError)
     expect(error).toEqual(new ConfigNotFoundError('Cannot find config file'))
   })
@@ -157,9 +167,26 @@ test('get empty.js (require or import)', async () => {
     },
   ]
 
-  await getConfig(configGetStrategy).catch((error) => {
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await getConfigPromise.catch((error) => {
     expect(error).toEqual(new ConfigFileEmptyError('The config file is empty'))
   })
+})
+
+test('get node_exports_no_module.js (require or import)', async () => {
+  // Node.js only
+  // No errors
+  const configGetStrategy = [
+    {
+      filepath: path.join(fromDir, 'node_exports_no_module.js'),
+      loader: 'js',
+    },
+  ]
+
+  const fileConfig = await getConfig(configGetStrategy)
+
+  expect(fileConfig).toEqual({})
 })
 
 test('get empty.json', async () => {
@@ -171,7 +198,9 @@ test('get empty.json', async () => {
     },
   ]
 
-  await getConfig(configGetStrategy).catch((error) => {
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await getConfigPromise.catch((error) => {
     expect(error).toEqual(new ConfigFileEmptyError('The config file is empty'))
   })
 })
@@ -186,7 +215,9 @@ test('get empty.package.json', async () => {
     },
   ]
 
-  await getConfig(configGetStrategy).catch((error) => {
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await getConfigPromise.catch((error) => {
     expect(error).toEqual(new ConfigFileEmptyError('The config file is empty'))
   })
 })
@@ -200,7 +231,9 @@ test('get empty.yaml', async () => {
     },
   ]
 
-  await getConfig(configGetStrategy).catch((error) => {
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await getConfigPromise.catch((error) => {
     expect(error).toEqual(new ConfigFileEmptyError('The config file is empty'))
   })
 })

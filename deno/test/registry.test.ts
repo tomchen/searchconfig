@@ -6,6 +6,7 @@ import {
   defaultExtRegistry,
 } from '../src/registry.ts'
 import { expect, test, describe } from './jest_to_deno.ts'
+import { assertThrows } from 'https://deno.land/std@0.84.0/testing/asserts.ts'
 
 describe('registry', () => {
   test('registry.loaders default', () => {
@@ -42,12 +43,15 @@ describe('registry', () => {
 
 describe('jsonoryaml without yaml package', () => {
   test('jsonoryaml without yaml package all', () => {
-    expect.assertions(1)
-    try {
+    // expect.assertions(1)
+    // try {
+    //   jsonoryaml('---\ntest: 132\ntest2: abc')
+    // } catch (error) {
+    //   expect(error).toBeInstanceOf(SyntaxError)
+    // }
+    assertThrows(() => {
       jsonoryaml('---\ntest: 132\ntest2: abc')
-    } catch (error) {
-      expect(error).toBeInstanceOf(SyntaxError)
-    }
+    }, SyntaxError);
   })
 })
 

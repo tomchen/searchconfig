@@ -242,7 +242,9 @@ test('cannot find config file', async () => {
     },
   ]
 
-  await getConfig(configGetStrategy).catch((error) => {
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await getConfigPromise.catch((error) => {
     expect(error).toBeInstanceOf(ConfigNotFoundError)
     expect(error).toEqual(new ConfigNotFoundError('Cannot find config file'))
   })
