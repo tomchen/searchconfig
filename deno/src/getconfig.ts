@@ -1,27 +1,26 @@
 import { findup, fileExists, keyStr2Arr } from './_util.ts'
 import {
+  ConfigError,
   ConfigFileEmptyError,
   ConfigUnknownLoaderError,
   ConfigNotFoundError,
-  ConfigSyntaxError,
-  ConfigError,
 } from './errors.ts'
 import * as path from 'https://deno.land/std@0.84.0/path/mod.ts'
 // import * as fs from 'https://deno.land/std@0.84.0/fs/mod.ts'
-import { registry, LoaderFuncType } from './registry.ts'
+import { registry, LoaderType } from './registry.ts'
 import { autoDetectLoader } from './util.ts'
 
 type ConfType = Record<string, unknown>
 
 export type ConfigGetStrategyFilepathType = {
   filepath: string
-  loader?: string | LoaderFuncType | null
+  loader?: string | LoaderType | null
   key?: string | null
 }
 
 export type ConfigGetStrategyFilenameType = {
   filename: string | string[]
-  loader?: string | LoaderFuncType | null | (string | LoaderFuncType | null)[]
+  loader?: string | LoaderType | null | (string | LoaderType | null)[]
   key?: string | (string | null)[] | null
   fromDir?: string
 }
@@ -43,12 +42,12 @@ const getConfigInfo = async (
   configGetStrategy: ConfigGetStrategyType
 ): Promise<{
   configPath: string | null
-  loader: string | LoaderFuncType
+  loader: string | LoaderType
   key: string[] | null
 }> => {
   try {
     let configPath: string | null = null
-    let loader: string | LoaderFuncType | null = null
+    let loader: string | LoaderType | null = null
     let key: string[] | null = null
     for (const straItem of configGetStrategy) {
       if ('filepath' in straItem) {
@@ -130,7 +129,7 @@ const getConfigInfo = async (
   }
 }
 
-const getLoaderFunc = (loader: string | LoaderFuncType): LoaderFuncType => {
+const getLoaderFunc = (loader: string | LoaderType): LoaderType => {
   if (typeof loader === 'string') {
     if (!(loader in registry.loaders)) {
       throw new ConfigUnknownLoaderError('Unknown loader string')
@@ -161,41 +160,15 @@ const getConfig = async (
     if (configPath !== null) {
       let config: ConfType | unknown
 
-      if (loader === 'js' || loader === 'ts') {
-        // deno only
+      const loaderFunc = getLoaderFunc(loader)
+
+      const tryToLoad = async (p: string): Promise<ConfType | unknown> => {
         try {
-          config = (await import('file://' + configPath))?.default
-          if (config === undefined) {
-            const fileContent = await Deno.readTextFile(configPath)
-            if (fileContent.trim() === '') {
-              throw new ConfigFileEmptyError('The config file is empty')
-            } else {
-              throw new ConfigSyntaxError(
-                `Cannot parse (require or import) the file ${configPath}`
-              )
-            }
-          }
+          return await loaderFunc(p)
         } catch (error) {
           if (error instanceof ConfigError) {
             throw error
-          } else {
-            throw new ConfigSyntaxError(
-              `Cannot parse (require or import) the file ${configPath}. Detail: ${error.message}`,
-              error
-            )
           }
-        }
-      } else {
-        const fileContent = await Deno.readTextFile(configPath)
-
-        if (fileContent.trim() === '') {
-          throw new ConfigFileEmptyError('The config file is empty')
-        }
-
-        const loaderFunc = getLoaderFunc(loader)
-        try {
-          config = loaderFunc(fileContent)
-        } catch (error) {
           if (typeof loader === 'string' && loader in registry.loaderErrors) {
             throw registry.loaderErrors[loader](error, configPath)
           }
@@ -203,10 +176,25 @@ const getConfig = async (
         }
       }
 
+      if (loaderFunc.usePath) {
+        config = await tryToLoad(configPath)
+      } else {
+        const fileContent = await Deno.readTextFile(configPath)
+
+        if (fileContent.trim() === '') {
+          throw new ConfigFileEmptyError(
+            `Empty config file ${configPath}`,
+            undefined,
+            configPath
+          )
+        }
+        config = await tryToLoad(fileContent)
+      }
+
       if (key !== undefined && key !== null) {
         for (const k of key) {
           if (typeof config === 'object' && config !== null && k in config) {
-            config = (<ConfType>config)[k]
+            config = (config as ConfType)[k]
           }
         }
       }
@@ -221,9 +209,4 @@ const getConfig = async (
   }
 }
 
-export {
-  getConfig,
-  // ConfigGetStrategyType,
-  // ConfigGetStrategyFilepathType,
-  // ConfigGetStrategyFilenameType,
-}
+export { getConfig }

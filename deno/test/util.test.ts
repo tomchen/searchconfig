@@ -12,8 +12,8 @@ import { assertThrowsAsync } from 'https://deno.land/std@0.84.0/testing/asserts.
 
 describe('autoDetectLoader', () => {
   test('autoDetectLoader defaultExtRegistry', () => {
-    expect(autoDetectLoader('abcde.js')).toBe('js')
-    expect(autoDetectLoader('abcde.cjs')).toBe('js')
+    expect(autoDetectLoader('abcde.js')).toBe('import')
+    expect(autoDetectLoader('abcde.cjs')).toBe('import')
     expect(autoDetectLoader('abcde.json')).toBe('json')
     expect(autoDetectLoader('abcde.yaml')).toBe('yaml')
     expect(autoDetectLoader('abcde.yml')).toBe('yaml')
@@ -47,9 +47,11 @@ describe('defaultConfigGetStrategy', () => {
             '.johndoerc',
             '.johndoerc.json',
             '.johndoerc.js',
+            '.johndoerc.mjs',
             '.johndoerc.cjs',
             'johndoe.config.json',
             'johndoe.config.js',
+            'johndoe.config.mjs',
             'johndoe.config.cjs',
           ],
           key: ['johndoe'],
@@ -70,11 +72,13 @@ describe('defaultConfigGetStrategy', () => {
             '.johndoerc.yaml',
             '.johndoerc.yml',
             '.johndoerc.js',
+            '.johndoerc.mjs',
             '.johndoerc.cjs',
             'johndoe.config.json',
             'johndoe.config.yaml',
             'johndoe.config.yml',
             'johndoe.config.js',
+            'johndoe.config.mjs',
             'johndoe.config.cjs',
           ],
           loader: [null, 'jsonoryaml'],
@@ -97,11 +101,13 @@ describe('defaultConfigGetStrategy', () => {
             '.johndoerc.yaml',
             '.johndoerc.yml',
             '.johndoerc.js',
+            '.johndoerc.mjs',
             '.johndoerc.cjs',
             'johndoe.config.json',
             'johndoe.config.yaml',
             'johndoe.config.yml',
             'johndoe.config.js',
+            'johndoe.config.mjs',
             'johndoe.config.cjs',
           ],
           loader: [null, 'jsonoryaml'],
@@ -127,9 +133,11 @@ describe('defaultConfigGetStrategy', () => {
             '.johndoerc',
             '.johndoerc.json',
             '.johndoerc.js',
+            '.johndoerc.mjs',
             '.johndoerc.cjs',
             'johndoe.config.json',
             'johndoe.config.js',
+            'johndoe.config.mjs',
             'johndoe.config.cjs',
           ],
           key: ['johndoe'],
@@ -166,11 +174,13 @@ describe('defaultConfigGetStrategy', () => {
             '.johndoerc.yaml',
             '.johndoerc.yml',
             '.johndoerc.js',
+            '.johndoerc.mjs',
             '.johndoerc.cjs',
             'johndoe.config.json',
             'johndoe.config.yaml',
             'johndoe.config.yml',
             'johndoe.config.js',
+            'johndoe.config.mjs',
             'johndoe.config.cjs',
           ],
           loader: [null, 'jsonoryaml'],
@@ -225,8 +235,6 @@ describe('defaultConfigGetStrategy', () => {
     // }
 
     test('defaultConfigGetStrategy with getConfig fromDir simple not found 14', async () => {
-      // expect.assertions(2)
-
       const fromDir = './test/file_to_test/defaultconfig/14/from/'
       const stra = defaultConfigGetStrategy('johndoe', {
         hasYaml: true,

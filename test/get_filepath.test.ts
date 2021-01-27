@@ -9,7 +9,7 @@ describe('Get primitive', () => {
   test('single_number.js', async () => {
     const configGetStrategy = [
       {
-        filename: path.join(fromDir, 'single_number.js'),
+        filepath: path.join(fromDir, 'single_number.js'),
       },
     ]
 
@@ -21,7 +21,7 @@ describe('Get primitive', () => {
   test('single_number.json', async () => {
     const configGetStrategy = [
       {
-        filename: path.join(fromDir, 'single_number.json'),
+        filepath: path.join(fromDir, 'single_number.json'),
       },
     ]
 
@@ -33,7 +33,7 @@ describe('Get primitive', () => {
   test('single_string.js', async () => {
     const configGetStrategy = [
       {
-        filename: path.join(fromDir, 'single_string.js'),
+        filepath: path.join(fromDir, 'single_string.js'),
       },
     ]
 
@@ -45,7 +45,7 @@ describe('Get primitive', () => {
   test('single_string.json', async () => {
     const configGetStrategy = [
       {
-        filename: path.join(fromDir, 'single_string.json'),
+        filepath: path.join(fromDir, 'single_string.json'),
       },
     ]
 
@@ -57,7 +57,7 @@ describe('Get primitive', () => {
   test('single_function.js', async () => {
     const configGetStrategy = [
       {
-        filename: path.join(fromDir, 'single_function.js'),
+        filepath: path.join(fromDir, 'single_function.js'),
       },
     ]
 
@@ -67,15 +67,15 @@ describe('Get primitive', () => {
   })
 
   test('single_function.json', async () => {
-    expect.assertions(2)
-
     const configGetStrategy = [
       {
-        filename: path.join(fromDir, 'single_function.json'),
+        filepath: path.join(fromDir, 'single_function.json'),
       },
     ]
 
     const getConfigPromise = getConfig(configGetStrategy)
+
+    await expect(() => getConfigPromise).rejects.toThrow()
 
     await getConfigPromise.catch((error) => {
       expect(error).toBeInstanceOf(ConfigSyntaxError)
@@ -92,10 +92,11 @@ describe('Get object', () => {
     'option-5': 'hello',
   }
 
-  test('get good.js (with auto detected loader)', async () => {
+  test('get good.js (with import loader)', async () => {
     const configGetStrategy = [
       {
         filepath: path.join(fromDir, 'good.js'),
+        loader: 'import',
       },
     ]
 
@@ -104,11 +105,10 @@ describe('Get object', () => {
     expect(fileConfig).toEqual(expectedConfObj)
   })
 
-  test('get good.ts (with js loader)', async () => {
+  test('get good.ts (with auto detected loader)', async () => {
     const configGetStrategy = [
       {
         filepath: path.join(fromDir, 'good.ts'),
-        loader: 'js',
       },
     ]
 
@@ -116,6 +116,30 @@ describe('Get object', () => {
 
     expect(fileConfig).toEqual(expectedConfObj)
   })
+
+  test('get good.cjs (with auto detected loader)', async () => {
+    const configGetStrategy = [
+      {
+        filepath: path.join(fromDir, 'good.cjs'),
+      },
+    ]
+
+    const fileConfig = await getConfig(configGetStrategy)
+
+    expect(fileConfig).toEqual(expectedConfObj)
+  })
+
+  // test('get good.mjs (with auto detected loader)', async () => {
+  //   const configGetStrategy = [
+  //     {
+  //       filepath: path.join(fromDir, 'good.mjs'),
+  //     },
+  //   ]
+
+  //   const fileConfig = await getConfig(configGetStrategy)
+
+  //   expect(fileConfig).toEqual(expectedConfObj)
+  // })
 
   test('get good.json', async () => {
     const configGetStrategy = [
@@ -130,17 +154,37 @@ describe('Get object', () => {
     expect(fileConfig).toEqual(expectedConfObj)
   })
 
-  test('get i_am_js_but_has_json_ext.json', async () => {
+  test('get i_am_json_but_has_js_ext.js', async () => {
     const configGetStrategy = [
       {
-        filepath: path.join(fromDir, 'i_am_js_but_has_json_ext.json'),
-        loader: 'js',
+        filepath: path.join(fromDir, 'i_am_json_but_has_js_ext.js'),
+        loader: 'json',
       },
     ]
 
     const fileConfig = await getConfig(configGetStrategy)
 
     expect(fileConfig).toEqual(expectedConfObj)
+  })
+
+  test('get i_am_js_but_has_json_ext.json', async () => {
+    const configGetStrategy = [
+      {
+        filepath: path.join(fromDir, 'i_am_js_but_has_json_ext.json'),
+        loader: 'import',
+      },
+    ]
+
+    const getConfigPromise = getConfig(configGetStrategy)
+
+    await expect(() => getConfigPromise).rejects.toThrow()
+
+    await getConfigPromise.catch((error) => {
+      expect(error).toBeInstanceOf(ConfigSyntaxError)
+      expect(error.originalError).not.toBeUndefined()
+      expect(error.fileName).not.toBeUndefined()
+      expect(error.message).toMatch(/^Cannot parse \(import\) the file /)
+    })
   })
 
   test('get key gmc in good.package.json', async () => {
@@ -185,7 +229,6 @@ describe('Get object', () => {
   })
 
   test('get good.yaml with npm package yaml, unregistered & registered', async () => {
-    expect.assertions(6)
     const configGetStrategy = [
       {
         filepath: path.join(fromDir, 'good.yaml'),
@@ -200,6 +243,7 @@ describe('Get object', () => {
       },
     ]
     const getConfigPromise = getConfig(configGetStrategy2)
+    await expect(() => getConfigPromise).rejects.toThrow()
     await getConfigPromise.catch((error) => {
       expect(error).toBeInstanceOf(ConfigUnknownLoaderError)
       expect(error).toEqual(
@@ -212,6 +256,7 @@ describe('Get object', () => {
 
     registry.reset()
     const getConfigPromise2 = getConfig(configGetStrategy2)
+    await expect(() => getConfigPromise2).rejects.toThrow()
     await getConfigPromise2.catch((error) => {
       expect(error).toBeInstanceOf(ConfigUnknownLoaderError)
       expect(error).toEqual(
@@ -221,7 +266,6 @@ describe('Get object', () => {
   })
 
   test('get good.yml2 with npm package yaml, unregistered & registered', async () => {
-    expect.assertions(8)
     const configGetStrategy = [
       {
         filepath: path.join(fromDir, 'good.yml2'),
@@ -236,6 +280,7 @@ describe('Get object', () => {
       },
     ]
     const getConfigPromise = getConfig(configGetStrategy2)
+    await expect(() => getConfigPromise).rejects.toThrow()
     await getConfigPromise.catch((error) => {
       expect(error).toBeInstanceOf(ConfigSyntaxError)
       expect(error.originalError).not.toBeUndefined()
@@ -243,6 +288,7 @@ describe('Get object', () => {
 
     registry.addExt('.yml2', 'yaml2')
     const getConfigPromise2 = getConfig(configGetStrategy2)
+    await expect(() => getConfigPromise2).rejects.toThrow()
     await getConfigPromise2.catch((error) => {
       expect(error).toBeInstanceOf(ConfigUnknownLoaderError)
       expect(error).toEqual(
@@ -255,6 +301,7 @@ describe('Get object', () => {
 
     registry.reset()
     const getConfigPromise3 = getConfig(configGetStrategy2)
+    await expect(() => getConfigPromise3).rejects.toThrow()
     await getConfigPromise3.catch((error) => {
       expect(error).toBeInstanceOf(ConfigSyntaxError)
       expect(error.originalError).not.toBeUndefined()

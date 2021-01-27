@@ -33,6 +33,9 @@ test('error classes', () => {
     expect(myErr.originalError).toBeUndefined()
     myErr.originalError = Error('Original error changed!')
     expect(myErr.originalError).toEqual(Error('Original error changed!'))
+    expect(myErr.fileName).toBeUndefined()
+    myErr.fileName = 'abcd.js'
+    expect(myErr.fileName).toEqual('abcd.js')
 
     const myErrWithOrigErr = new v(`oh no! ${k}!`, Error('Original error!'))
     expect(myErrWithOrigErr).toBeInstanceOf(v)
@@ -46,39 +49,53 @@ test('error classes', () => {
     expect(myErrWithOrigErr.originalError).toEqual(
       Error('Original error changed!')
     )
+    expect(myErrWithOrigErr.fileName).toBeUndefined()
+    myErrWithOrigErr.fileName = 'bgf/abcd.js'
+    expect(myErrWithOrigErr.fileName).toEqual('bgf/abcd.js')
+
+    const myErrWithFileName = new v(`oh no! ${k}!`, undefined, 'asd/efg.js')
+    expect(myErrWithFileName).toBeInstanceOf(v)
+    expect(myErrWithFileName).toBeInstanceOf(Error)
+    expect(myErrWithFileName.name).toBe(k)
+    expect(myErrWithFileName.message).toBe(`oh no! ${k}!`)
+    myErrWithFileName.message = `changed message. ${k}!`
+    expect(myErrWithFileName.message).toBe(`changed message. ${k}!`)
+    expect(myErrWithFileName.originalError).toBeUndefined()
+    myErrWithFileName.originalError = Error('Original error changed!')
+    expect(myErrWithFileName.originalError).toEqual(
+      Error('Original error changed!')
+    )
+    expect(myErrWithFileName.fileName).toBe('asd/efg.js')
+    myErrWithFileName.fileName = 'abcd.js'
+    expect(myErrWithFileName.fileName).toEqual('abcd.js')
 
     const myErrEmpty = new v('')
     expect(myErrEmpty).toBeInstanceOf(v)
-    expect(myErr).toBeInstanceOf(Error)
+    expect(myErrEmpty).toBeInstanceOf(Error)
     expect(myErrEmpty.name).toBe(k)
     expect(myErrEmpty.message).toBe('')
     myErrEmpty.message = `changed message. ${k}Empty!`
     expect(myErrEmpty.message).toBe(`changed message. ${k}Empty!`)
     expect(myErrEmpty.originalError).toBeUndefined()
-    myErrEmpty.originalError = Error('Original error changed!')
-    expect(myErrEmpty.originalError).toEqual(Error('Original error changed!'))
+    expect(myErrEmpty.fileName).toBeUndefined()
 
     const myErrUndefined = new v()
     expect(myErrUndefined).toBeInstanceOf(v)
-    expect(myErr).toBeInstanceOf(Error)
+    expect(myErrUndefined).toBeInstanceOf(Error)
     expect(myErrUndefined.name).toBe(k)
     expect(myErrUndefined.message).toBe('')
     myErrUndefined.message = `changed message. ${k}Empty!`
     expect(myErrUndefined.message).toBe(`changed message. ${k}Empty!`)
     expect(myErrUndefined.originalError).toBeUndefined()
-    myErrUndefined.originalError = Error('Original error changed!')
-    expect(myErrUndefined.originalError).toEqual(
-      Error('Original error changed!')
-    )
+    expect(myErrUndefined.fileName).toBeUndefined()
   }
 })
 
-test('get malformed.js (require or import)', async () => {
-  // expect.assertions(3)
+test('get malformed.js (import)', async () => {
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'malformed.js'),
-      loader: 'js',
+      loader: 'import',
     },
   ]
 
@@ -89,14 +106,12 @@ test('get malformed.js (require or import)', async () => {
   await getConfigPromise.catch((error) => {
     expect(error).toBeInstanceOf(ConfigSyntaxError)
     expect(error.originalError).not.toBeUndefined()
-    expect(error.message).toMatch(
-      /^Cannot parse \(require or import\) the file /
-    )
+    expect(error.fileName).not.toBeUndefined()
+    expect(error.message).toMatch(/^Cannot parse \(import\) the file /)
   })
 })
 
 test('get malformed.json', async () => {
-  // expect.assertions(2)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'malformed.json'),
@@ -115,7 +130,6 @@ test('get malformed.json', async () => {
 })
 
 test('get malformed.yaml', async () => {
-  // expect.assertions(1)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'malformed.yaml'),
@@ -133,7 +147,6 @@ test('get malformed.yaml', async () => {
 })
 
 test('unknown loader string', async () => {
-  // expect.assertions(2)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'good.json'),
@@ -152,11 +165,10 @@ test('unknown loader string', async () => {
 })
 
 test('get inexistent file', async () => {
-  // expect.assertions(2)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'inexistent.js'),
-      loader: 'js',
+      loader: 'import',
     },
   ]
 
@@ -170,12 +182,11 @@ test('get inexistent file', async () => {
   })
 })
 
-test('get empty.js (require or import)', async () => {
-  // expect.assertions(1)
+test('get empty.js (import)', async () => {
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'empty.js'),
-      loader: 'js',
+      loader: 'import',
     },
   ]
 
@@ -184,17 +195,19 @@ test('get empty.js (require or import)', async () => {
   await assertThrowsAsync(() => getConfigPromise)
 
   await getConfigPromise.catch((error) => {
-    expect(error).toEqual(new ConfigFileEmptyError('The config file is empty'))
+    expect(error).toBeInstanceOf(ConfigFileEmptyError)
+    expect(error.originalError).toBeUndefined()
+    expect(error.fileName).not.toBeUndefined()
+    expect(error.message).toMatch(/^Empty config file /)
   })
 })
 
-test('get deno_no_default_empty_obj.js (require or import)', async () => {
+test('get deno_no_default_empty_obj.js (import)', async () => {
   // Deno only
-  // expect.assertions(3)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'deno_no_default_empty_obj.js'),
-      loader: 'js',
+      loader: 'import',
     },
   ]
 
@@ -205,14 +218,12 @@ test('get deno_no_default_empty_obj.js (require or import)', async () => {
   await getConfigPromise.catch((error) => {
     expect(error).toBeInstanceOf(ConfigSyntaxError)
     expect(error.originalError).toBeUndefined()
-    expect(error.message).toMatch(
-      /^Cannot parse \(require or import\) the file /
-    )
+    expect(error.fileName).not.toBeUndefined()
+    expect(error.message).toMatch(/^Cannot parse \(import\) the file /)
   })
 })
 
 test('get empty.json', async () => {
-  // expect.assertions(1)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'empty.json'),
@@ -225,12 +236,14 @@ test('get empty.json', async () => {
   await assertThrowsAsync(() => getConfigPromise)
 
   await getConfigPromise.catch((error) => {
-    expect(error).toEqual(new ConfigFileEmptyError('The config file is empty'))
+    expect(error).toBeInstanceOf(ConfigFileEmptyError)
+    expect(error.originalError).toBeUndefined()
+    expect(error.fileName).not.toBeUndefined()
+    expect(error.message).toMatch(/^Empty config file /)
   })
 })
 
 test('get empty.package.json', async () => {
-  // expect.assertions(1)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'empty.package.json'),
@@ -244,12 +257,14 @@ test('get empty.package.json', async () => {
   await assertThrowsAsync(() => getConfigPromise)
 
   await getConfigPromise.catch((error) => {
-    expect(error).toEqual(new ConfigFileEmptyError('The config file is empty'))
+    expect(error).toBeInstanceOf(ConfigFileEmptyError)
+    expect(error.originalError).toBeUndefined()
+    expect(error.fileName).not.toBeUndefined()
+    expect(error.message).toMatch(/^Empty config file /)
   })
 })
 
 test('get empty.yaml', async () => {
-  // expect.assertions(1)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'empty.yaml'),
@@ -262,7 +277,10 @@ test('get empty.yaml', async () => {
   await assertThrowsAsync(() => getConfigPromise)
 
   await getConfigPromise.catch((error) => {
-    expect(error).toEqual(new ConfigFileEmptyError('The config file is empty'))
+    expect(error).toBeInstanceOf(ConfigFileEmptyError)
+    expect(error.originalError).toBeUndefined()
+    expect(error.fileName).not.toBeUndefined()
+    expect(error.message).toMatch(/^Empty config file /)
   })
 })
 

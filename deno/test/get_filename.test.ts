@@ -1,4 +1,8 @@
-import { getConfig, ConfigNotFoundError } from '../src/index.ts'
+import {
+  getConfig,
+  ConfigNotFoundError,
+  ConfigSyntaxError,
+} from '../src/index.ts'
 import * as path from 'https://deno.land/std@0.84.0/path/mod.ts'
 import { expect, test } from './jest_to_deno.ts'
 import { assertThrowsAsync } from 'https://deno.land/std@0.84.0/testing/asserts.ts'
@@ -15,7 +19,7 @@ test('simplest uppercased loader string', async () => {
   const configGetStrategy = [
     {
       filename: 'good.js',
-      loader: 'JS',
+      loader: 'IMPORT',
       fromDir,
     },
   ]
@@ -25,19 +29,25 @@ test('simplest uppercased loader string', async () => {
   expect(fileConfig).toEqual(expectedConfObj)
 })
 
-// test('simplest exports without module.', async () => {
-//   const configGetStrategy = [
-//     {
-//       filename: 'goodexports.js',
-//       loader: 'js',
-//       fromDir,
-//     },
-//   ]
+test('simplest exports without module.', async () => {
+  const configGetStrategy = [
+    {
+      filename: 'goodexports.js',
+      loader: 'import',
+      fromDir,
+    },
+  ]
 
-//   const fileConfig = await getConfig(configGetStrategy)
+  const getConfigPromise = getConfig(configGetStrategy)
 
-//   expect(fileConfig).toEqual(expectedConfObj) // Deno will fail because it doesn't use cjs `exports`
-// })
+  // Deno will fail because it doesn't use cjs `exports`
+  await assertThrowsAsync(() => getConfigPromise)
+
+  await getConfigPromise.catch((error) => {
+    expect(error).toBeInstanceOf(ConfigSyntaxError)
+    expect(error.originalError).not.toBeUndefined()
+  })
+})
 
 test('simplest no fromDir with key, loader is function', async () => {
   const configGetStrategy = [
@@ -57,7 +67,7 @@ test('filename array', async () => {
   const configGetStrategy = [
     {
       filename: ['inexistent.js', 'good.js'],
-      loader: 'js',
+      loader: 'import',
       fromDir,
     },
   ]
@@ -71,7 +81,7 @@ test('filename and loader array', async () => {
   const configGetStrategy = [
     {
       filename: ['inexistent.js', 'good.json'],
-      loader: ['js', 'json'],
+      loader: ['import', 'json'],
       fromDir,
     },
   ]
@@ -85,7 +95,7 @@ test('filename, loader and key array, real config file in upper dir', async () =
   const configGetStrategy = [
     {
       filename: ['inexistent.js', 'package.json'],
-      loader: ['js', 'json'],
+      loader: ['import', 'json'],
       key: ['inexistent', 'gmc'],
       fromDir,
     },
@@ -215,22 +225,42 @@ test('filepath and filename mix', async () => {
   expect(fileConfig).toEqual(expectedConfObj)
 })
 
-// test('get i_am_js_but_has_json_ext.json', async () => {
-//   const configGetStrategy = [
-//     {
-//       filename: ['inexistent.js', 'i_am_js_but_has_json_ext.json'],
-//       loader: ['inexistent', 'js'],
-//       fromDir,
-//     },
-//   ]
+test('get i_am_json_but_has_js_ext.js', async () => {
+  const configGetStrategy = [
+    {
+      filename: ['inexistent.js', 'i_am_json_but_has_js_ext.js'],
+      loader: ['inexistent', 'json'],
+      fromDir,
+    },
+  ]
 
-//   const fileConfig = await getConfig(configGetStrategy)
+  const fileConfig = await getConfig(configGetStrategy)
 
-//   expect(fileConfig).toEqual(expectedConfObj) // Deno will fail because it can't import('a.json')
-// })
+  expect(fileConfig).toEqual(expectedConfObj)
+})
+
+test('get i_am_js_but_has_json_ext.json', async () => {
+  const configGetStrategy = [
+    {
+      filename: ['inexistent.js', 'i_am_js_but_has_json_ext.json'],
+      loader: ['inexistent', 'import'],
+      fromDir,
+    },
+  ]
+
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await assertThrowsAsync(() => getConfigPromise)
+
+  await getConfigPromise.catch((error) => {
+    expect(error).toBeInstanceOf(ConfigSyntaxError)
+    expect(error.originalError).not.toBeUndefined()
+    expect(error.fileName).not.toBeUndefined()
+    expect(error.message).toMatch(/^Cannot parse \(import\) the file /)
+  })
+})
 
 test('cannot find config file', async () => {
-  // expect.assertions(2)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'inexistent.json'),

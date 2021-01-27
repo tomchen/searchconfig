@@ -1,6 +1,6 @@
+import { Registry, registry } from '../src/index'
 import {
   jsonoryaml,
-  registry,
   defaultLoaderRegistry,
   defaultLoaderErrorRegistry,
   defaultExtRegistry,
@@ -41,12 +41,9 @@ describe('registry', () => {
 
 describe('jsonoryaml without yaml package', () => {
   test('all', () => {
-    expect.assertions(1)
-    try {
+    expect(() => {
       jsonoryaml('---\ntest: 132\ntest2: abc')
-    } catch (error) {
-      expect(error).toBeInstanceOf(SyntaxError)
-    }
+    }).toThrow(SyntaxError)
   })
 })
 
@@ -58,5 +55,12 @@ describe('jsonoryaml with yaml package', () => {
     registry.addLoader('yaml', yaml.parse)
     expect(jsonoryaml('{ "test": 132, "test2": "abc" }')).toEqual(obj)
     expect(jsonoryaml('---\ntest: 132\ntest2: abc')).toEqual(obj)
+  })
+})
+
+describe('Registry class', () => {
+  test('new', () => {
+    const registry2 = new Registry()
+    expect(registry2.loaders).toEqual(defaultLoaderRegistry)
   })
 })

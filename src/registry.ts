@@ -1,5 +1,6 @@
-import { requireFromString } from './_util'
-import { ConfigSyntaxError } from './errors'
+import * as path from 'path'
+import * as fs from 'fs'
+import { ConfigError, ConfigFileEmptyError, ConfigSyntaxError } from './errors'
 
 /**
  * Parse a string that is JSON or YAML: try JSON.parse first,
@@ -14,7 +15,10 @@ const jsonoryaml = (str: string): unknown => {
   try {
     return JSON.parse(str)
   } catch (error) {
-    if ('yaml' in registry.loaders) {
+    if (
+      'yaml' in registry.loaders &&
+      registry.loaders.yaml instanceof Function
+    ) {
       return registry.loaders.yaml(str)
     }
     throw error
@@ -22,13 +26,16 @@ const jsonoryaml = (str: string): unknown => {
 }
 
 /**
- * Type of `loaderFunc` parameter in function `registry.addLoader()`
+ * Type of `loader` parameter in function `registry.addLoader()`
  *
  * @example
  *
  * @public
  */
-type LoaderFuncType = (str: string) => unknown
+export type LoaderType = {
+  (str: string): unknown | Promise<unknown>
+  usePath?: boolean
+}
 
 /**
  * Type of `loaderErrorFunc` parameter in function `registry.addLoaderError()`
@@ -37,40 +44,83 @@ type LoaderFuncType = (str: string) => unknown
  *
  * @public
  */
-type LoaderErrorFuncType = (error: Error, configPath: string) => Error
+export type LoaderErrorFuncType = (error: Error, configPath: string) => Error
 
-type LoaderRegistryType = Record<string, LoaderFuncType>
-type LoaderErrorRegistryType = {
-  [key: string]: LoaderErrorFuncType
-}
+type LoaderRegistryType = Record<string, LoaderType>
+type LoaderErrorRegistryType = Record<string, LoaderErrorFuncType>
 type ExtRegistryType = Record<string, string>
 
+/**
+ * Import loader
+ * @param filepath - File path
+ */
+const importLoader = async (filepath: string): Promise<LoaderType> => {
+  // await import(path.relative(__dirname, filepath).replace('\\', '/')) // Deno
+  const config = (await import(path.relative(__dirname, filepath)))?.default
+  // if (config === undefined) { // Deno
+  if (
+    config !== undefined &&
+    typeof config === 'object' &&
+    config !== null &&
+    Object.keys(config).length === 0 &&
+    JSON.stringify(config) === '{}'
+  ) {
+    // const fileContent = await Deno.readTextFile(filepath) // Deno
+    const fileContent = await fs.promises.readFile(filepath, 'utf8')
+    if (fileContent.trim() === '') {
+      throw new ConfigFileEmptyError(
+        `Empty config file ${filepath}`,
+        undefined,
+        filepath
+      )
+    } else {
+      throw new ConfigSyntaxError(
+        `Cannot parse (import) the file ${filepath}`,
+        undefined,
+        filepath
+      )
+    }
+  }
+  return config
+}
+importLoader.usePath = true
+
 const defaultLoaderRegistry: LoaderRegistryType = {
-  js: requireFromString,
+  import: importLoader,
   json: JSON.parse,
   jsonoryaml,
 }
 const defaultLoaderErrorRegistry: LoaderErrorRegistryType = {
-  js: (error: Error, configPath: string): ConfigSyntaxError =>
+  import: (error: Error, configPath: string): ConfigSyntaxError =>
     new ConfigSyntaxError(
-      `Cannot parse (require or import) the file ${configPath}. Detail: ${error.message}`,
-      error
+      `Cannot parse (import) the file ${configPath}. Detail: ${error.message}`,
+      error,
+      configPath
     ),
-  json: (error: Error): ConfigSyntaxError =>
-    new ConfigSyntaxError(error.message, error),
+  json: (error: Error, configPath: string): ConfigSyntaxError =>
+    new ConfigSyntaxError(
+      `Cannot parse the JSON file ${configPath}. Detail: ${error.message}`,
+      error,
+      configPath
+    ),
 }
 const defaultExtRegistry = {
-  '.js': 'js',
-  '.cjs': 'js',
-  '.ts': 'ts',
+  '.js': 'import',
+  '.cjs': 'import',
+  '.mjs': 'import',
+  '.ts': 'import',
   '.json': 'json',
   '.yaml': 'yaml',
   '.yml': 'yaml',
 }
 
 /**
- * Registry of loader functions, loader error functions
- * and exts (file extensions)
+ * Class of the registry of loader functions, loader error functions
+ * and exts (file extensions).
+ * Although exported, it is not recommended to use this class directly,
+ * please use the instance of the class - {@link registry} - instead
+ *
+ * @internal
  */
 class Registry {
   private loaderRegistry: LoaderRegistryType
@@ -108,8 +158,8 @@ class Registry {
    *
    * @public
    */
-  addLoader(loaderName: string, loaderFunc: LoaderFuncType): void {
-    this.loaderRegistry[loaderName.toLowerCase()] = loaderFunc
+  addLoader(loaderName: string, loader: LoaderType): void {
+    this.loaderRegistry[loaderName.toLowerCase()] = loader
   }
 
   /**
@@ -178,14 +228,18 @@ class Registry {
   }
 }
 
+/**
+ * Registry of loader functions, loader error functions
+ * and exts (file extensions).
+ */
 const registry = new Registry()
 
 export {
   jsonoryaml,
+  Registry,
   registry,
-  LoaderFuncType,
-  LoaderErrorFuncType,
   defaultLoaderRegistry,
   defaultLoaderErrorRegistry,
   defaultExtRegistry,
+  importLoader,
 }

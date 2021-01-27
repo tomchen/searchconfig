@@ -1,11 +1,7 @@
-import {
-  findup,
-  fileExists,
-  keyStr2Arr,
-  requireFromString,
-} from '../src/_util'
+import { findup, fileExists, keyStr2Arr } from '../src/_util'
+import * as _util from '../src/_util'
 import * as path from 'path'
-import * as fs from 'fs'
+import fs from 'fs'
 
 describe('findup all', () => {
   const fromDir = './test/file_to_test/findup/from'
@@ -26,7 +22,8 @@ describe('findup all', () => {
     })
 
     test('non ENOENT error code', async () => {
-      const spy = jest.spyOn(fs, 'stat').mockImplementation((_, cb) => {
+      const spy = jest.spyOn(fs, 'stat')
+      spy.mockImplementation((_, cb) => {
         cb(
           { name: 'Error', message: 'fake error', code: 'MOCKINGJAY' },
           new fs.Stats()
@@ -122,21 +119,5 @@ describe('keyStr2Arr', () => {
 
   test('str1\\.\\str2', () => {
     expect(keyStr2Arr('str1\\.\\str2')).toEqual(['str1.\\str2'])
-  })
-})
-
-describe('requireFromString', () => {
-  test('String required from string', () => {
-    expect(requireFromString('module.exports = "good"')).toBe('good')
-  })
-
-  test('Number required from string', () => {
-    expect(requireFromString('module.exports = 132')).toBe(132)
-  })
-
-  test('Object required from string', () => {
-    expect(requireFromString('module.exports = { test: 132 }')).toEqual({
-      test: 132,
-    })
   })
 })

@@ -7,13 +7,15 @@
 class ConfigError extends Error {
   public readonly name: string = 'ConfigError'
   public message: string
-  public originalError: Error | undefined
-  constructor(message?: string, originalError?: Error) {
+  public originalError?: Error
+  public fileName?: string
+  constructor(message?: string, originalError?: Error, fileName?: string) {
     super(message)
     Object.setPrototypeOf(this, ConfigError.prototype)
     Error.captureStackTrace(this, ConfigError)
     this.message = message ?? ''
     this.originalError = originalError
+    this.fileName = fileName
   }
 }
 
@@ -23,12 +25,13 @@ class ConfigError extends Error {
  */
 class ConfigFileEmptyError extends ConfigError {
   name = 'ConfigFileEmptyError'
-  constructor(message?: string, originalError?: Error) {
+  constructor(message?: string, originalError?: Error, fileName?: string) {
     super(message)
     Object.setPrototypeOf(this, ConfigFileEmptyError.prototype)
     Error.captureStackTrace(this, ConfigFileEmptyError)
     this.message = message ?? ''
     this.originalError = originalError
+    this.fileName = fileName
   }
 }
 
@@ -39,12 +42,13 @@ class ConfigFileEmptyError extends ConfigError {
  */
 class ConfigSyntaxError extends ConfigError {
   name = 'ConfigSyntaxError'
-  constructor(message?: string, originalError?: Error) {
+  constructor(message?: string, originalError?: Error, fileName?: string) {
     super(message)
     Object.setPrototypeOf(this, ConfigSyntaxError.prototype)
     Error.captureStackTrace(this, ConfigSyntaxError)
     this.message = message ?? ''
     this.originalError = originalError
+    this.fileName = fileName
   }
 }
 
@@ -54,12 +58,13 @@ class ConfigSyntaxError extends ConfigError {
  */
 class ConfigUnknownLoaderError extends ConfigError {
   name = 'ConfigUnknownLoaderError'
-  constructor(message?: string, originalError?: Error) {
+  constructor(message?: string, originalError?: Error, fileName?: string) {
     super(message)
     Object.setPrototypeOf(this, ConfigUnknownLoaderError.prototype)
     Error.captureStackTrace(this, ConfigUnknownLoaderError)
     this.message = message ?? ''
     this.originalError = originalError
+    this.fileName = fileName
   }
 }
 
@@ -69,12 +74,13 @@ class ConfigUnknownLoaderError extends ConfigError {
  */
 class ConfigNotFoundError extends ConfigError {
   name = 'ConfigNotFoundError'
-  constructor(message?: string, originalError?: Error) {
+  constructor(message?: string, originalError?: Error, fileName?: string) {
     super(message)
     Object.setPrototypeOf(this, ConfigNotFoundError.prototype)
     Error.captureStackTrace(this, ConfigNotFoundError)
     this.message = message ?? ''
     this.originalError = originalError
+    this.fileName = fileName
   }
 }
 

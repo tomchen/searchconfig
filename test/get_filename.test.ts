@@ -1,4 +1,4 @@
-import { getConfig, ConfigNotFoundError } from '../src/index'
+import { getConfig, ConfigNotFoundError, ConfigSyntaxError } from '../src/index'
 import * as path from 'path'
 
 const fromDir = './test/file_to_test/filename/from'
@@ -13,7 +13,7 @@ test('simplest uppercased loader string', async () => {
   const configGetStrategy = [
     {
       filename: 'good.js',
-      loader: 'JS',
+      loader: 'IMPORT',
       fromDir,
     },
   ]
@@ -27,7 +27,7 @@ test('simplest exports without module.', async () => {
   const configGetStrategy = [
     {
       filename: 'goodexports.js',
-      loader: 'js',
+      loader: 'import',
       fromDir,
     },
   ]
@@ -55,7 +55,7 @@ test('filename array', async () => {
   const configGetStrategy = [
     {
       filename: ['inexistent.js', 'good.js'],
-      loader: 'js',
+      loader: 'import',
       fromDir,
     },
   ]
@@ -69,7 +69,7 @@ test('filename and loader array', async () => {
   const configGetStrategy = [
     {
       filename: ['inexistent.js', 'good.json'],
-      loader: ['js', 'json'],
+      loader: ['import', 'json'],
       fromDir,
     },
   ]
@@ -83,7 +83,7 @@ test('filename, loader and key array, real config file in upper dir', async () =
   const configGetStrategy = [
     {
       filename: ['inexistent.js', 'package.json'],
-      loader: ['js', 'json'],
+      loader: ['import', 'json'],
       key: ['inexistent', 'gmc'],
       fromDir,
     },
@@ -213,11 +213,11 @@ test('filepath and filename mix', async () => {
   expect(fileConfig).toEqual(expectedConfObj)
 })
 
-test('get i_am_js_but_has_json_ext.json', async () => {
+test('get i_am_json_but_has_js_ext.js', async () => {
   const configGetStrategy = [
     {
-      filename: ['inexistent.js', 'i_am_js_but_has_json_ext.json'],
-      loader: ['inexistent', 'js'],
+      filename: ['inexistent.js', 'i_am_json_but_has_js_ext.js'],
+      loader: ['inexistent', 'json'],
       fromDir,
     },
   ]
@@ -227,8 +227,28 @@ test('get i_am_js_but_has_json_ext.json', async () => {
   expect(fileConfig).toEqual(expectedConfObj)
 })
 
+test('get i_am_js_but_has_json_ext.json', async () => {
+  const configGetStrategy = [
+    {
+      filename: ['inexistent.js', 'i_am_js_but_has_json_ext.json'],
+      loader: ['inexistent', 'import'],
+      fromDir,
+    },
+  ]
+
+  const getConfigPromise = getConfig(configGetStrategy)
+
+  await expect(() => getConfigPromise).rejects.toThrow()
+
+  await getConfigPromise.catch((error) => {
+    expect(error).toBeInstanceOf(ConfigSyntaxError)
+    expect(error.originalError).not.toBeUndefined()
+    expect(error.fileName).not.toBeUndefined()
+    expect(error.message).toMatch(/^Cannot parse \(import\) the file /)
+  })
+})
+
 test('cannot find config file', async () => {
-  expect.assertions(2)
   const configGetStrategy = [
     {
       filepath: path.join(fromDir, 'inexistent.json'),
@@ -243,6 +263,8 @@ test('cannot find config file', async () => {
   ]
 
   const getConfigPromise = getConfig(configGetStrategy)
+
+  await expect(() => getConfigPromise).rejects.toThrow()
 
   await getConfigPromise.catch((error) => {
     expect(error).toBeInstanceOf(ConfigNotFoundError)

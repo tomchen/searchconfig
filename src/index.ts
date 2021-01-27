@@ -1,7 +1,7 @@
-import { getConfig, ConfigGetStrategyType } from './getconfig'
-import { mergeConfig, ConfigMergeStrategyType } from './mergeconfig'
+import { getConfig } from './getconfig'
+import { mergeConfig } from './mergeconfig'
 import { defaultConfigGetStrategy } from './util'
-import { registry, LoaderFuncType, LoaderErrorFuncType } from './registry'
+import { Registry, registry, importLoader } from './registry'
 
 import {
   ConfigError,
@@ -11,15 +11,20 @@ import {
   ConfigNotFoundError,
 } from './errors'
 
+export type LoaderType = import('./registry').LoaderType
+export type LoaderErrorFuncType = import('./registry').LoaderErrorFuncType
+export type ConfigGetStrategyType = import('./getconfig').ConfigGetStrategyType
+export type ConfigGetStrategyFilepathType = import('./getconfig').ConfigGetStrategyFilepathType
+export type ConfigGetStrategyFilenameType = import('./getconfig').ConfigGetStrategyFilenameType
+export type ConfigMergeStrategyType = import('./mergeconfig').ConfigMergeStrategyType
+
 export {
   getConfig,
   mergeConfig,
   defaultConfigGetStrategy,
+  Registry,
   registry,
-  LoaderFuncType,
-  LoaderErrorFuncType,
-  ConfigGetStrategyType,
-  ConfigMergeStrategyType,
+  importLoader,
   ConfigError,
   ConfigFileEmptyError,
   ConfigSyntaxError,

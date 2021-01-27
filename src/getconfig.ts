@@ -1,25 +1,26 @@
 import { findup, fileExists, keyStr2Arr } from './_util'
 import {
+  ConfigError,
   ConfigFileEmptyError,
   ConfigUnknownLoaderError,
   ConfigNotFoundError,
 } from './errors'
 import * as path from 'path'
 import * as fs from 'fs'
-import { registry, LoaderFuncType } from './registry'
+import { registry, LoaderType } from './registry'
 import { autoDetectLoader } from './util'
 
 type ConfType = Record<string, unknown>
 
-type ConfigGetStrategyFilepathType = {
+export type ConfigGetStrategyFilepathType = {
   filepath: string
-  loader?: string | LoaderFuncType | null
+  loader?: string | LoaderType | null
   key?: string | null
 }
 
-type ConfigGetStrategyFilenameType = {
+export type ConfigGetStrategyFilenameType = {
   filename: string | string[]
-  loader?: string | LoaderFuncType | null | (string | LoaderFuncType | null)[]
+  loader?: string | LoaderType | null | (string | LoaderType | null)[]
   key?: string | (string | null)[] | null
   fromDir?: string
 }
@@ -32,7 +33,7 @@ type ConfigGetStrategyFilenameType = {
  *
  * @public
  */
-type ConfigGetStrategyType = (
+export type ConfigGetStrategyType = (
   | ConfigGetStrategyFilepathType
   | ConfigGetStrategyFilenameType
 )[]
@@ -41,12 +42,12 @@ const getConfigInfo = async (
   configGetStrategy: ConfigGetStrategyType
 ): Promise<{
   configPath: string | null
-  loader: string | LoaderFuncType
+  loader: string | LoaderType
   key: string[] | null
 }> => {
   try {
     let configPath: string | null = null
-    let loader: string | LoaderFuncType | null = null
+    let loader: string | LoaderType | null = null
     let key: string[] | null = null
     for (const straItem of configGetStrategy) {
       if ('filepath' in straItem) {
@@ -128,7 +129,7 @@ const getConfigInfo = async (
   }
 }
 
-const getLoaderFunc = (loader: string | LoaderFuncType): LoaderFuncType => {
+const getLoaderFunc = (loader: string | LoaderType): LoaderType => {
   if (typeof loader === 'string') {
     if (!(loader in registry.loaders)) {
       throw new ConfigUnknownLoaderError('Unknown loader string')
@@ -159,26 +160,40 @@ const getConfig = async (
     if (configPath !== null) {
       let config: ConfType | unknown
 
-      const fileContent = await fs.promises.readFile(configPath, 'utf8')
+      const loaderFunc = getLoaderFunc(loader)
 
-      if (fileContent.trim() === '') {
-        throw new ConfigFileEmptyError('The config file is empty')
+      const tryToLoad = async (p: string): Promise<ConfType | unknown> => {
+        try {
+          return await loaderFunc(p)
+        } catch (error) {
+          if (error instanceof ConfigError) {
+            throw error
+          }
+          if (typeof loader === 'string' && loader in registry.loaderErrors) {
+            throw registry.loaderErrors[loader](error, configPath)
+          }
+          throw error
+        }
       }
 
-      const loaderFunc = getLoaderFunc(loader)
-      try {
-        config = loaderFunc(fileContent)
-      } catch (error) {
-        if (typeof loader === 'string' && loader in registry.loaderErrors) {
-          throw registry.loaderErrors[loader](error, configPath)
+      if (loaderFunc.usePath) {
+        config = await tryToLoad(configPath)
+      } else {
+        const fileContent = await fs.promises.readFile(configPath, 'utf8')
+        if (fileContent.trim() === '') {
+          throw new ConfigFileEmptyError(
+            `Empty config file ${configPath}`,
+            undefined,
+            configPath
+          )
         }
-        throw error
+        config = await tryToLoad(fileContent)
       }
 
       if (key !== undefined && key !== null) {
         for (const k of key) {
           if (typeof config === 'object' && config !== null && k in config) {
-            config = (<ConfType>config)[k]
+            config = (config as ConfType)[k]
           }
         }
       }
@@ -193,9 +208,4 @@ const getConfig = async (
   }
 }
 
-export {
-  getConfig,
-  ConfigGetStrategyType,
-  ConfigGetStrategyFilepathType,
-  ConfigGetStrategyFilenameType,
-}
+export { getConfig }

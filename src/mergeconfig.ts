@@ -8,9 +8,7 @@ type ConfsType = Record<string, ConfType>
  *
  * @public
  */
-type ConfigMergeStrategyType = {
-  [key: string]: [string, string][]
-}
+export type ConfigMergeStrategyType = Record<string, [string, string][]>
 
 /**
  * Merge configuration objects
@@ -40,4 +38,4 @@ const mergeConfig = (
   return retConf
 }
 
-export { mergeConfig, ConfigMergeStrategyType }
+export { mergeConfig }
