@@ -2,7 +2,7 @@ module.exports = {
   title: 'Search Config: Get & Merge Configuration',
   tagline:
     'TypeScript (JavaScript) node.js package "searchconfig" helps you get and merge configuration.',
-  url: 'https://config.js.org',
+  url: 'https://searchconfig.js.org',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
