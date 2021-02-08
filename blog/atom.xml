@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://config.js.org/blog</id>
+    <id>https://searchconfig.js.org/blog</id>
     <title>Search Config: Get &amp; Merge Configuration Blog</title>
     <updated>2015-10-25T23:29:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://config.js.org/blog"/>
+    <link rel="alternate" href="https://searchconfig.js.org/blog"/>
     <subtitle>Search Config: Get &amp; Merge Configuration Blog</subtitle>
-    <icon>https://config.js.org/img/favicon.ico</icon>
+    <icon>https://searchconfig.js.org/img/favicon.ico</icon>
 </feed>
