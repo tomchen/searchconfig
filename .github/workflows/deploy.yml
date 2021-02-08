@@ -1,11 +1,15 @@
-name: deploy
+name: Deploy
 
 on:
-  pull_request:
+  push:
+    paths:
+      - 'docs/**'
     branches:
       - main
       - master
-  push:
+  pull_request:
+    paths:
+      - 'docs/**'
     branches:
       - main
       - master
@@ -19,8 +23,9 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: '12.x'
-      - name: Test Build
+      - name: Test Build Doc
         run: |
+          cd docs
           if [ -e yarn.lock ]; then
           yarn install --frozen-lockfile
           elif [ -e package-lock.json ]; then
@@ -29,6 +34,7 @@ jobs:
           npm i
           fi
           npm run build
+          cd ..
   gh-release:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -37,8 +43,9 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: '12.x'
-      - name: Build
+      - name: Build Doc
         run: |
+          cd docs
           if [ -e yarn.lock ]; then
           yarn install --frozen-lockfile
           elif [ -e package-lock.json ]; then
@@ -47,9 +54,10 @@ jobs:
           npm i
           fi
           npm run build
-      - name: Release to GitHub Pages
+          cd ..
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           deploy_key: ${{ secrets.GH_PAGES_DEPLOY }}
-          publish_dir: ./build
-          cname: font.tomchen.org
+          publish_dir: ./docs/build
+          cname: config.js.org

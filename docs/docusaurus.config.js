@@ -20,7 +20,7 @@ module.exports = {
         // {
         //   to: '/',
         //   activeBasePath: '/',
-        //   label: 'Standard Font',
+        //   label: 'Some label',
         //   position: 'left',
         // },
         {
@@ -72,6 +72,9 @@ module.exports = {
           editUrl: 'https://github.com/tomchen/searchconfig/edit/main/docs/',
           showLastUpdateAuthor: false,
           showLastUpdateTime: false,
+          remarkPlugins: [
+            [require('@docusaurus/remark-plugin-npm2yarn'), { sync: true }],
+          ],
         },
         theme: {
           customCss: [require.resolve('./src/css/custom.scss')],

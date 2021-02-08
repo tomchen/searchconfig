@@ -2,16 +2,20 @@ name: Test
 
 on:
   push:
+    paths-ignore:
+      - 'docs/**'
     branches:
       - main
       - master
   pull_request:
+    paths-ignore:
+      - 'docs/**'
     branches:
       - main
       - master
 
 jobs:
-  test:
+  node-test:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -30,3 +34,21 @@ jobs:
         run: yarn
       - name: Run tests
         run: yarn test
+
+  deno-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+        deno: ['v1.3', 'v1.5', 'v1.x', 'nightly']
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Deno
+        uses: denolib/setup-deno@v2
+        with:
+          deno-version: ${{ matrix.deno }}
+      - name: Run tests
+        run: yarn test:deno

@@ -5,7 +5,6 @@ import {
   ConfigNotFoundError,
 } from './errors.ts'
 import * as path from 'https://deno.land/std@0.84.0/path/mod.ts'
-// import * as fs from 'https://deno.land/std@0.84.0/fs/mod.ts'
 import { registry, LoaderType } from './registry.ts'
 import { autoDetectLoader } from './util.ts'
 
