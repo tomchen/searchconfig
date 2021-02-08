@@ -2,8 +2,8 @@ module.exports = {
   title: 'Search Config: Get & Merge Configuration',
   tagline:
     'TypeScript (JavaScript) node.js package "searchconfig" helps you get and merge configuration.',
-  url: 'https://searchconfig.tomchen.org',
-  baseUrl: '/',
+  url: 'https://config.js.org',
+  baseUrl: '/searchconfig/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',

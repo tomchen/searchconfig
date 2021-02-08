@@ -13,26 +13,22 @@ npm install searchconfig
 Basic Usage:
 
 ```js
-import { getConfig } from 'searchconfig'
+import { getConfig } from 'https://raw.githubusercontent.com/tomchen/searchconfig/main/deno/src/index.ts'
 const stra = defaultConfigGetStrategy('packagename')
-;(async () => {
-  const config = await getConfig(stra)
-})()
+const config = await getConfig(stra)
 ```
 
 With YAML:
 
 ```js
-import { getConfig, registry } from 'searchconfig'
+import { getConfig, registry } from 'https://raw.githubusercontent.com/tomchen/searchconfig/main/deno/src/index.ts'
 import * as yaml from 'yaml'
 
 registry.addLoader('yaml', yaml.parse)
 const stra = defaultConfigGetStrategy('packagename', {
   hasYaml: true,
 })
-;(async () => {
-  const config = await getConfig(stra)
-})()
+const config = await getConfig(stra)
 ```
 
 The `stra` variable, which represents a default config get strategy, looks like this (the previous one take precedence over the next ones):
