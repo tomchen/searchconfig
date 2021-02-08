@@ -3,7 +3,7 @@ module.exports = {
   tagline:
     'TypeScript (JavaScript) node.js package "searchconfig" helps you get and merge configuration.',
   url: 'https://config.js.org',
-  baseUrl: '/searchconfig/',
+  baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
