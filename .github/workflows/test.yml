@@ -18,11 +18,12 @@ jobs:
   node-test:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: true
       matrix:
         os:
           - ubuntu-latest
           - windows-latest
-        node: [8.x, 10.x, 12.x, 14.x, 15.x]
+        node: [10.x, 12.x, 14.x, 15.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -38,11 +39,12 @@ jobs:
   deno-test:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: true
       matrix:
         os:
           - ubuntu-latest
           - windows-latest
-        deno: ['v1.3', 'v1.5', 'v1.x', 'nightly']
+        deno: ['v1.4', 'v1.5', 'v1.x', 'nightly']
 
     steps:
       - uses: actions/checkout@v2

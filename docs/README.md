@@ -1,1 +1,1 @@
-# Get & Merge Config Doc Website
+# [Get & Merge Config Doc Website](https://github.com/tomchen/searchconfig/)
