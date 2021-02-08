@@ -1,29 +1,5 @@
 import * as path from 'https://deno.land/std@0.84.0/path/mod.ts'
-// import * as fs from 'https://deno.land/std@0.84.0/fs/mod.ts'
 import { ConfigSyntaxError } from './errors.ts'
-
-/**
- * Parse a string that is JSON or YAML: try JSON.parse first,
- * if it is not correct JSON string, then use
- * the loader function registered as 'yaml' to parse the string
- * @param str - string to parse
- * @returns JSON (or YAML) object
- *
- * @internal
- */
-const jsonoryaml = (str: string): unknown => {
-  try {
-    return JSON.parse(str)
-  } catch (error) {
-    if (
-      'yaml' in registry.loaders &&
-      registry.loaders.yaml instanceof Function
-    ) {
-      return registry.loaders.yaml(str)
-    }
-    throw error
-  }
-}
 
 /**
  * Type of `loader` parameter in function `registry.addLoader()`
@@ -75,35 +51,6 @@ const importLoader = async (filepath: string): Promise<LoaderType> => {
 }
 importLoader.usePath = true
 
-const defaultLoaderRegistry: LoaderRegistryType = {
-  import: importLoader,
-  json: JSON.parse,
-  jsonoryaml,
-}
-const defaultLoaderErrorRegistry: LoaderErrorRegistryType = {
-  import: (error: Error, configPath: string): ConfigSyntaxError =>
-    new ConfigSyntaxError(
-      `Cannot parse (import) the file ${configPath}. Detail: ${error.message}`,
-      error,
-      configPath
-    ),
-  json: (error: Error, configPath: string): ConfigSyntaxError =>
-    new ConfigSyntaxError(
-      `Cannot parse the JSON file ${configPath}. Detail: ${error.message}`,
-      error,
-      configPath
-    ),
-}
-const defaultExtRegistry = {
-  '.js': 'import',
-  '.cjs': 'import',
-  '.mjs': 'import',
-  '.ts': 'import',
-  '.json': 'json',
-  '.yaml': 'yaml',
-  '.yml': 'yaml',
-}
-
 /**
  * Class of the registry of loader functions, loader error functions
  * and exts (file extensions).
@@ -113,14 +60,63 @@ const defaultExtRegistry = {
  * @internal
  */
 class Registry {
+  /**
+   * Parse a string that is JSON or YAML: try JSON.parse first,
+   * if it is not correct JSON string, then use
+   * the loader function registered as 'yaml' to parse the string
+   * @param str - string to parse
+   * @returns JSON (or YAML) object
+   *
+   * @internal
+   */
+  private jsonoryaml = (str: string): unknown => {
+    try {
+      return JSON.parse(str)
+    } catch (error) {
+      if ('yaml' in this.loaders && this.loaders.yaml instanceof Function) {
+        return this.loaders.yaml(str)
+      }
+      throw error
+    }
+  }
+
+  private defaultLoaderRegistry: LoaderRegistryType = {
+    import: importLoader,
+    json: JSON.parse,
+    jsonoryaml: this.jsonoryaml,
+  }
+  private defaultLoaderErrorRegistry: LoaderErrorRegistryType = {
+    import: (error: Error, configPath: string): ConfigSyntaxError =>
+      new ConfigSyntaxError(
+        `Cannot parse (import) the file ${configPath}. Detail: ${error.message}`,
+        error,
+        configPath
+      ),
+    json: (error: Error, configPath: string): ConfigSyntaxError =>
+      new ConfigSyntaxError(
+        `Cannot parse the JSON file ${configPath}. Detail: ${error.message}`,
+        error,
+        configPath
+      ),
+  }
+  private defaultExtRegistry = {
+    '.js': 'import',
+    '.cjs': 'import',
+    '.mjs': 'import',
+    '.ts': 'import',
+    '.json': 'json',
+    '.yaml': 'yaml',
+    '.yml': 'yaml',
+  }
+
   private loaderRegistry: LoaderRegistryType
   private loaderErrorRegistry: LoaderErrorRegistryType
   private extRegistry: ExtRegistryType
 
   constructor() {
-    this.loaderRegistry = { ...defaultLoaderRegistry }
-    this.loaderErrorRegistry = { ...defaultLoaderErrorRegistry }
-    this.extRegistry = { ...defaultExtRegistry }
+    this.loaderRegistry = { ...this.defaultLoaderRegistry }
+    this.loaderErrorRegistry = { ...this.defaultLoaderErrorRegistry }
+    this.extRegistry = { ...this.defaultExtRegistry }
   }
 
   /**
@@ -134,9 +130,9 @@ class Registry {
    * @public
    */
   reset(): void {
-    this.loaderRegistry = { ...defaultLoaderRegistry }
-    this.loaderErrorRegistry = { ...defaultLoaderErrorRegistry }
-    this.extRegistry = { ...defaultExtRegistry }
+    this.loaderRegistry = { ...this.defaultLoaderRegistry }
+    this.loaderErrorRegistry = { ...this.defaultLoaderErrorRegistry }
+    this.extRegistry = { ...this.defaultExtRegistry }
   }
 
   /**
@@ -224,12 +220,4 @@ class Registry {
  */
 const registry = new Registry()
 
-export {
-  jsonoryaml,
-  Registry,
-  registry,
-  defaultLoaderRegistry,
-  defaultLoaderErrorRegistry,
-  defaultExtRegistry,
-  importLoader,
-}
+export { Registry, registry, importLoader }
