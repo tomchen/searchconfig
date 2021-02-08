@@ -2,7 +2,7 @@
 <rss version="2.0">
     <channel>
         <title>Search Config: Get &amp; Merge Configuration Blog</title>
-        <link>https://searchconfig.tomchen.org/blog</link>
+        <link>https://config.js.org/blog</link>
         <description>Search Config: Get &amp; Merge Configuration Blog</description>
         <lastBuildDate>Sun, 25 Oct 2015 23:29:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
