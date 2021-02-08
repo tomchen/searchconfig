@@ -1,8 +1,10 @@
-# Get & Merge Config
+# Search Config
 
 TypeScript (JavaScript) package to get and merge configuration, made for Node.js and Deno.
 
 A lightweight alternative to cosmiconfig, it is easy to use, fully customizable and predictable, and has clear error types that are simple to handle.
+
+[![npm package](https://img.shields.io/badge/npm%20i-searchconfig-brightgreen)](https://www.npmjs.com/package/searchconfig) [![version number](https://img.shields.io/npm/v/searchconfig?color=green&label=version)](https://github.com/tomchen/searchconfig/releases) [![Actions Status](https://github.com/tomchen/searchconfig/workflows/Test/badge.svg)](https://github.com/tomchen/searchconfig/actions) [![Node.js](https://img.shields.io/badge/node-%3E=10.0-brightgreen.svg?logo=node.js)](https://nodejs.org/) [![Deno](https://img.shields.io/badge/deno-%3E=1.5.0-white.svg?logo=deno)](https://deno.land/x/searchconfig) [![License](https://img.shields.io/github/license/tomchen/searchconfig)](https://github.com/tomchen/searchconfig/blob/main/LICENSE)
 
 For now it's an alpha release and I'll improve the documentation. But it should be usable and there is auto-generated API doc you can read.
 
