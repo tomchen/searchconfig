@@ -1,22 +1,25 @@
-import { getConfig } from './getconfig'
-import { mergeConfig } from './mergeconfig'
+import {
+  getConfig,
+  ConfigGetStrategyType,
+  ConfigGetStrategyFilepathType,
+  ConfigGetStrategyFilenameType,
+} from './getconfig'
+import { mergeConfig, ConfigMergeStrategyType } from './mergeconfig'
 import { defaultConfigGetStrategy } from './util'
-import { Registry, registry, importLoader } from './registry'
+import {
+  Registry,
+  registry,
+  importLoader,
+  LoaderType,
+  LoaderErrorFuncType,
+} from './registry'
 
 import {
   ConfigError,
-  ConfigFileEmptyError,
   ConfigSyntaxError,
   ConfigUnknownLoaderError,
   ConfigNotFoundError,
 } from './errors'
-
-export type LoaderType = import('./registry').LoaderType
-export type LoaderErrorFuncType = import('./registry').LoaderErrorFuncType
-export type ConfigGetStrategyType = import('./getconfig').ConfigGetStrategyType
-export type ConfigGetStrategyFilepathType = import('./getconfig').ConfigGetStrategyFilepathType
-export type ConfigGetStrategyFilenameType = import('./getconfig').ConfigGetStrategyFilenameType
-export type ConfigMergeStrategyType = import('./mergeconfig').ConfigMergeStrategyType
 
 export {
   getConfig,
@@ -26,8 +29,16 @@ export {
   registry,
   importLoader,
   ConfigError,
-  ConfigFileEmptyError,
   ConfigSyntaxError,
   ConfigUnknownLoaderError,
   ConfigNotFoundError,
+}
+
+export type {
+  LoaderType,
+  LoaderErrorFuncType,
+  ConfigGetStrategyType,
+  ConfigGetStrategyFilepathType,
+  ConfigGetStrategyFilenameType,
+  ConfigMergeStrategyType,
 }

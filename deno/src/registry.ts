@@ -1,11 +1,6 @@
 import * as path from 'https://deno.land/std@0.84.0/path/mod.ts'
-import * as fs from 'https://deno.land/std@0.84.0/fs/mod.ts'
-import {
-  ConfigError,
-  ConfigFileEmptyError,
-  ConfigSyntaxError,
-} from './errors.ts'
-const __dirname = path.dirname(path.fromFileUrl(import.meta.url))
+// import * as fs from 'https://deno.land/std@0.84.0/fs/mod.ts'
+import { ConfigSyntaxError } from './errors.ts'
 
 /**
  * Parse a string that is JSON or YAML: try JSON.parse first,
@@ -61,9 +56,7 @@ type ExtRegistryType = Record<string, string>
  */
 const importLoader = async (filepath: string): Promise<LoaderType> => {
   // const config = (await import(path.relative(__dirname, filepath)))?.default // Node
-  const config = (
-    await import(path.relative(__dirname, filepath).replace('\\', '/'))
-  )?.default
+  const config = (await import(path.toFileUrl(filepath).href))?.default
   // if ( // Node
   //   config !== undefined &&
   //   typeof config === 'object' &&
@@ -72,21 +65,11 @@ const importLoader = async (filepath: string): Promise<LoaderType> => {
   //   JSON.stringify(config) === '{}'
   // ) {
   if (config === undefined) {
-    // const fileContent = await fs.promises.readFile(filepath, 'utf8') // Node
-    const fileContent = await Deno.readTextFile(filepath)
-    if (fileContent.trim() === '') {
-      throw new ConfigFileEmptyError(
-        `Empty config file ${filepath}`,
-        undefined,
-        filepath
-      )
-    } else {
-      throw new ConfigSyntaxError(
-        `Cannot parse (import) the file ${filepath}`,
-        undefined,
-        filepath
-      )
-    }
+    throw new ConfigSyntaxError(
+      `Cannot parse (import) the file ${filepath}`,
+      undefined,
+      filepath
+    )
   }
   return config
 }

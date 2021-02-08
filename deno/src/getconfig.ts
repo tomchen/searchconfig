@@ -1,7 +1,6 @@
 import { findup, fileExists, keyStr2Arr } from './_util.ts'
 import {
   ConfigError,
-  ConfigFileEmptyError,
   ConfigUnknownLoaderError,
   ConfigNotFoundError,
 } from './errors.ts'
@@ -180,14 +179,6 @@ const getConfig = async (
         config = await tryToLoad(configPath)
       } else {
         const fileContent = await Deno.readTextFile(configPath)
-
-        if (fileContent.trim() === '') {
-          throw new ConfigFileEmptyError(
-            `Empty config file ${configPath}`,
-            undefined,
-            configPath
-          )
-        }
         config = await tryToLoad(fileContent)
       }
 

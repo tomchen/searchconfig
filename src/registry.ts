@@ -1,6 +1,5 @@
 import * as path from 'path'
-import * as fs from 'fs'
-import { ConfigError, ConfigFileEmptyError, ConfigSyntaxError } from './errors'
+import { ConfigSyntaxError } from './errors'
 
 /**
  * Parse a string that is JSON or YAML: try JSON.parse first,
@@ -55,7 +54,7 @@ type ExtRegistryType = Record<string, string>
  * @param filepath - File path
  */
 const importLoader = async (filepath: string): Promise<LoaderType> => {
-  // await import(path.relative(__dirname, filepath).replace('\\', '/')) // Deno
+  // const config = (await import(path.toFileUrl(filepath).href))?.default // Deno
   const config = (await import(path.relative(__dirname, filepath)))?.default
   // if (config === undefined) { // Deno
   if (
@@ -65,21 +64,11 @@ const importLoader = async (filepath: string): Promise<LoaderType> => {
     Object.keys(config).length === 0 &&
     JSON.stringify(config) === '{}'
   ) {
-    // const fileContent = await Deno.readTextFile(filepath) // Deno
-    const fileContent = await fs.promises.readFile(filepath, 'utf8')
-    if (fileContent.trim() === '') {
-      throw new ConfigFileEmptyError(
-        `Empty config file ${filepath}`,
-        undefined,
-        filepath
-      )
-    } else {
-      throw new ConfigSyntaxError(
-        `Cannot parse (import) the file ${filepath}`,
-        undefined,
-        filepath
-      )
-    }
+    throw new ConfigSyntaxError(
+      `Cannot parse (import) the file ${filepath}`,
+      undefined,
+      filepath
+    )
   }
   return config
 }

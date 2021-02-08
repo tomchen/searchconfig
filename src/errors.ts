@@ -1,6 +1,6 @@
 /**
  * Error thrown by searchconfig package.
- * Parent Error for {@link ConfigFileEmptyError}, {@link ConfigSyntaxError},
+ * Parent Error for {@link ConfigSyntaxError},
  * {@link ConfigUnknownLoaderError} and {@link ConfigNotFoundError}
  * @public
  */
@@ -13,22 +13,6 @@ class ConfigError extends Error {
     super(message)
     Object.setPrototypeOf(this, ConfigError.prototype)
     Error.captureStackTrace(this, ConfigError)
-    this.message = message ?? ''
-    this.originalError = originalError
-    this.fileName = fileName
-  }
-}
-
-/**
- * Error specifying that the config file found is empty
- * @public
- */
-class ConfigFileEmptyError extends ConfigError {
-  name = 'ConfigFileEmptyError'
-  constructor(message?: string, originalError?: Error, fileName?: string) {
-    super(message)
-    Object.setPrototypeOf(this, ConfigFileEmptyError.prototype)
-    Error.captureStackTrace(this, ConfigFileEmptyError)
     this.message = message ?? ''
     this.originalError = originalError
     this.fileName = fileName
@@ -86,7 +70,6 @@ class ConfigNotFoundError extends ConfigError {
 
 export {
   ConfigError,
-  ConfigFileEmptyError,
   ConfigSyntaxError,
   ConfigUnknownLoaderError,
   ConfigNotFoundError,

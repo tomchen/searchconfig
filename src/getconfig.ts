@@ -1,7 +1,6 @@
 import { findup, fileExists, keyStr2Arr } from './_util'
 import {
   ConfigError,
-  ConfigFileEmptyError,
   ConfigUnknownLoaderError,
   ConfigNotFoundError,
 } from './errors'
@@ -180,13 +179,6 @@ const getConfig = async (
         config = await tryToLoad(configPath)
       } else {
         const fileContent = await fs.promises.readFile(configPath, 'utf8')
-        if (fileContent.trim() === '') {
-          throw new ConfigFileEmptyError(
-            `Empty config file ${configPath}`,
-            undefined,
-            configPath
-          )
-        }
         config = await tryToLoad(fileContent)
       }
 

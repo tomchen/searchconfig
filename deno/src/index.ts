@@ -5,7 +5,6 @@ import { Registry, registry, importLoader } from './registry.ts'
 
 import {
   ConfigError,
-  ConfigFileEmptyError,
   ConfigSyntaxError,
   ConfigUnknownLoaderError,
   ConfigNotFoundError,
@@ -26,7 +25,6 @@ export {
   registry,
   importLoader,
   ConfigError,
-  ConfigFileEmptyError,
   ConfigSyntaxError,
   ConfigUnknownLoaderError,
   ConfigNotFoundError,

@@ -1,7 +1,6 @@
 import {
   getConfig,
   ConfigError,
-  ConfigFileEmptyError,
   ConfigSyntaxError,
   ConfigUnknownLoaderError,
   ConfigNotFoundError,
@@ -14,7 +13,6 @@ const fromDir = './test/file_to_test/filepath/'
 test('error classes', () => {
   const errs = {
     ConfigError,
-    ConfigFileEmptyError,
     ConfigSyntaxError,
     ConfigUnknownLoaderError,
     ConfigNotFoundError,
@@ -192,10 +190,10 @@ test('get empty.js (import)', async () => {
   await expect(() => getConfigPromise).rejects.toThrow()
 
   await getConfigPromise.catch((error) => {
-    expect(error).toBeInstanceOf(ConfigFileEmptyError)
+    expect(error).toBeInstanceOf(ConfigSyntaxError)
     expect(error.originalError).toBeUndefined()
     expect(error.fileName).not.toBeUndefined()
-    expect(error.message).toMatch(/^Empty config file /)
+    expect(error.message).toMatch(/^Cannot parse \(import\) the file /)
   })
 })
 
@@ -233,10 +231,11 @@ test('get empty.json', async () => {
   await expect(() => getConfigPromise).rejects.toThrow()
 
   await getConfigPromise.catch((error) => {
-    expect(error).toBeInstanceOf(ConfigFileEmptyError)
-    expect(error.originalError).toBeUndefined()
+    expect(error).toBeInstanceOf(ConfigSyntaxError)
+    expect(error.originalError).not.toBeUndefined()
     expect(error.fileName).not.toBeUndefined()
-    expect(error.message).toMatch(/^Empty config file /)
+    expect(error.message).toMatch(/^Cannot parse the JSON file /)
+    expect(error.message).toMatch(/Unexpected end of JSON input$/)
   })
 })
 
@@ -254,10 +253,11 @@ test('get empty.package.json', async () => {
   await expect(() => getConfigPromise).rejects.toThrow()
 
   await getConfigPromise.catch((error) => {
-    expect(error).toBeInstanceOf(ConfigFileEmptyError)
-    expect(error.originalError).toBeUndefined()
+    expect(error).toBeInstanceOf(ConfigSyntaxError) // JSON.parse('') throws error
+    expect(error.originalError).not.toBeUndefined()
     expect(error.fileName).not.toBeUndefined()
-    expect(error.message).toMatch(/^Empty config file /)
+    expect(error.message).toMatch(/^Cannot parse the JSON file /)
+    expect(error.message).toMatch(/Unexpected end of JSON input$/)
   })
 })
 
@@ -271,14 +271,7 @@ test('get empty.yaml', async () => {
 
   const getConfigPromise = getConfig(configGetStrategy)
 
-  await expect(() => getConfigPromise).rejects.toThrow()
-
-  await getConfigPromise.catch((error) => {
-    expect(error).toBeInstanceOf(ConfigFileEmptyError)
-    expect(error.originalError).toBeUndefined()
-    expect(error.fileName).not.toBeUndefined()
-    expect(error.message).toMatch(/^Empty config file /)
-  })
+  expect(await getConfigPromise).toBeNull() // yaml.parse('') is null
 })
 
 import * as _util from '../src/_util'
