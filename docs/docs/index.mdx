@@ -1,11 +1,13 @@
 ---
 id: index
-title: Get & Merge Config
+title: 'Search Config: Get and merge configuration, for Node and Deno'
 sidebar_label: Introduction
 slug: /
 ---
 
 TypeScript (JavaScript) package to get and merge configuration, made for Node.js and Deno.
+
+[Home Page & Docs (searchconfig.js.org)](https://searchconfig.js.org/) | [GitHub repo](https://github.com/tomchen/searchconfig) | [npm package](https://www.npmjs.com/package/searchconfig) | [Deno Module](https://deno.land/x/searchconfig)
 
 A lightweight alternative to cosmiconfig, it is easy to use, fully customizable and predictable, and has clear error types that are simple to handle.
 
@@ -19,7 +21,8 @@ Basic Usage:
 
 ```js
 import { getConfig } from 'searchconfig'
-const stra = defaultConfigGetStrategy('packagename')(async () => {
+const stra = defaultConfigGetStrategy('packagename')
+;(async () => {
   const config = await getConfig(stra)
 })()
 ```
@@ -33,7 +36,8 @@ import * as yaml from 'yaml'
 registry.addLoader('yaml', yaml.parse)
 const stra = defaultConfigGetStrategy('packagename', {
   hasYaml: true,
-})(async () => {
+})
+;(async () => {
   const config = await getConfig(stra)
 })()
 ```
