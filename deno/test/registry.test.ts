@@ -1,4 +1,4 @@
-import { Registry, registry } from '../src/index.ts'
+import { Registry } from '../src/index.ts'
 import { expect, test, describe } from './jest_to_deno.ts'
 import { assertThrows } from 'https://deno.land/std@0.84.0/testing/asserts.ts'
 
